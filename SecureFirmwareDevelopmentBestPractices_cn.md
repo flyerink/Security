@@ -322,7 +322,7 @@ SecureBoot 和 Secure Updates 从平台安全的角度来看很重要，因为�
 一些可能适用的设计选择包括：
 
 - [ ] 在生产版本中禁用调试挂钩。
-- [ ]确保调试挂钩不会以违反设备特定安全性的方式重新打开。（例如，不要创建容易受到潜在攻击的可利用的高权限“调试模式”。）
+- [ ] 确保调试挂钩不会以违反设备特定安全性的方式重新打开。（例如，不要创建容易受到潜在攻击的可利用的高权限“调试模式”。）
 - [ ] 需要设备标识符和随机数由安全的、记录的、授权服务签名以启用调试功能。如果设备被重置，随机数将变得无效。
 - [ ] 要求设备的信任链作为启用调试功能的一部分而失效。这可能意味着设备无法从那时起参与正常的生产活动，这可能还包括清除敏感状态和密钥。
 
@@ -357,11 +357,11 @@ SecureBoot 和 Secure Updates 从平台安全的角度来看很重要，因为�
 
 
 - [ ] 在使用基于硬件的配置的情况下，首选支持熔丝/一次性可编程 (OTP) 配置的组件，因为带有带电阻器的外部配置引脚更容易受到攻击/修改。
-    -[]当使用保险丝存储配置数据时，确保保险丝/OTP 功能允许更改可能需要在设备生命周期内更新的设置（例如：设备所有权、故障分析/调试状态）
+    - [ ] 当使用保险丝存储配置数据时，确保保险丝/OTP 功能允许更改可能需要在设备生命周期内更新的设置（例如：设备所有权、故障分析/调试状态）
 - [ ] 对于基于闪存的配置，配置应在使用前进行签名和验证。还考虑包括设备身份以防止配置被复制和在其他设备中重复使用（即：应避免使用未签名的标志）
-- [ ]默认配置状态应该是安全的，只要可能（即：不包括制造初始配置）
+- [ ] 默认配置状态应该是安全的，只要可能（即：不包括制造初始配置）
 - [ ] 避免故障打开语义，例如使用特定值指示更安全状态的位置[^16]，或空白设置指示“不安全”的位置[^17]
-- [ ]实施多重配置检查（例如，在每次使用时，并定期检查）以确保配置值不会在运行时更改，例如，通过故障注入攻击
+- [ ] 实施多重配置检查（例如，在每次使用时，并定期检查）以确保配置值不会在运行时更改，例如，通过故障注入攻击
 
 
 ## 启用遗留标准的弃用
@@ -464,7 +464,7 @@ IPMI 具有已知的可利用漏洞历史记录（请参阅 [Intel IPMI CVE 报�
 
 
 
--[]UEFI
+- [ ] UEFI
     - [ ] 如果安装在 FS0 以外的位置，工具必须正常运行：\（UEFI 映射表中列出的第一个文件系统）。
 - [ ] 操作系统
     - [ ] 未来平台将不支持传统模式启动，使基于 DOS 的工具无法使用。固件更新和诊断工具不能依赖于 DOS 环境。
@@ -506,7 +506,7 @@ IPMI 具有已知的可利用漏洞历史记录（请参阅 [Intel IPMI CVE 报�
 - [ ] 假设紧迫性，直到证明并非如此。
 
 
-###漏洞披露和补丁可用性
+### 漏洞披露和补丁可用性
 
 
 
@@ -533,8 +533,6 @@ IPMI 具有已知的可利用漏洞历史记录（请参阅 [Intel IPMI CVE 报�
 ### UEFI
 
 统一可扩展固件接口是通过 BIOS 或引导 ROM 访问的引导接口，它提供了访问较低级别设备及其相关接口的标准。UEFI 提供了大量的底层硬件访问，如果开发得当，可以确保固件完整性。这方面的指导方针包括：
-
-
 
 - [ ] 系统必须通过配置安全检查，例如：
     * [CHIPSEC](https://github.com/chipsec/chipsec)[^33] 在 Intel x86 平台上
@@ -598,7 +596,7 @@ BMC 在安全方面的历史不佳，因为它们最初的威胁模型严重依�
     - [ ] [SMASH CLP](https://www.dmtf.org/standards/smash)[^48] 通过 ssh
     - [ ] [Redfish](https://www.dmtf.org/standards/redfish)[^49]（[安全详细信息](http://redfish.dmtf.org/schemas/DSP0266_1.7.0.html#security -细节-a-id-安全-细节-a-)[^50])
     - [ ] 基于 SSL (443) 的 Web 界面，具有从 80 禁用或重新路由的能力
--[ ]提供禁用不需要的接口的能力：
+- [ ] 提供禁用不需要的接口的能力：
     - [ ] 远程登录
     - [ ] SSH
     - [ ] 不安全的网络 (80)
@@ -611,7 +609,7 @@ BMC 在安全方面的历史不佳，因为它们最初的威胁模型严重依�
 
 ### 外设固件
 
-不直接由主机处理器执行的固件（例如嵌入在外围硬件中并负责其初始化的固件），以及由外围设备提供给主机执行的固件（例如[上一节]中提到的Option ROM）（ #option-roms)) 还必须遵守最佳实践以确保系统安全。主机操作系统驱动程序开发通常需要此固件和相关的主机运行命令。一般指导如下：
+不直接由主机处理器执行的固件（例如嵌入在外围硬件中并负责其初始化的固件），以及由外围设备提供给主机执行的固件(例如[上一节]中提到的Option ROM）( #option-roms)) 还必须遵守最佳实践以确保系统安全。主机操作系统驱动程序开发通常需要此固件和相关的主机运行命令。一般指导如下：
 
 
 
@@ -666,6 +664,7 @@ CSIS SCWG 的初始版本
 - 进一步阅读的额外有用参考
 - 文档中的许多较小的编辑和改进
 - 公认的新社区贡献者。
+
 文档现已发布在 OCP GitHub 上。那里最受欢迎的是额外的贡献。
 
 
@@ -673,201 +672,151 @@ CSIS SCWG 的初始版本
 ## 引用的 URL
 
 [^1]:
-
 > https://cloudsecurityalliance.org/artifacts/firmware-integrity-in-the-cloud-data-center/
 
 [^2]:
-
 > https://www.opencompute.org/wiki/安全
 
 [^3]:
-
 > http://files.opencompute.org/oc/public.php?service=files&t=f4171bae8c7a32f05b0401378ee08483&download
 
 [^4]:
-
 > https://git-scm.com/book/en/v2/Git-Basics-Tagging
 
 [^5]:
-
 > https://en.wikipedia.org/wiki/Bounds_checking
 
 [^6]:
-
 > https://en.wikipedia.org/wiki/W%5EX
 
 [^7]:
-
 > https://en.wikipedia.org/wiki/Address_space_layout_randomization
 
 [^8]:
-
 > https://en.wikipedia.org/wiki/Stack_buffer_overflow#Protection_schemes
 
 [^9]:
-
 > https://en.wikipedia.org/wiki/Control-flow_integrity
 
 [^10]:
-
 > https://help.github.com/en/articles/about-required-commit-signing
 
 [^11]:
-
 > https://www.owasp.org/index.php/Static_Code_Analysis
 
 [^12]:
-
 > https://www.owasp.org/index.php/Fuzzing
 
 [^13]:
-
 > https://en.wikipedia.org/wiki/Code_coverage
 
 [^14]:
-
 > https://en.wikipedia.org/wiki/Code_coverage#In_practice
 
 [^15]:
-
 > https://en.wikipedia.org/wiki/Formal_methods
 
 [^16]:
-
 > https://recon.cx/2017/brussels/resources/slides/RECON-BRX-2017-Breaking_CRP_on_NXP_LPC_Microcontrollers_slides.pdf
 
 [^17]:
-
 > http://faq.riffbox.org/content/3/71/en/how-to-erase-frp-factory-reset-protection-using-riff-box-generic-instrucions.html
 
 [^18]:
-
 > https://www.intel.com/content/www/us/en/servers/ipmi/ipmi-home.html
 
 [^19]:
-
 > https://www.cvedetails.com/product/30635/Intel-Ipmi.html?vendor_id=238
 
 [^20]:
-
 > https://docs.microsoft.com/en-us/windows-hardware/drivers/driversecurity/driver-security-checklist
 
 [^21]:
-
 > https://en.wikipedia.org/wiki/Principle_of_least_privilege
 
 [^22]:
-
-> https://eclypsium.com/2019/08/10/screwed-drivers-signed-sealed-delivered[/](https://eclypsium.com/2019/08/10/screwed-drivers-signed-sealed-发表/）
+> https://eclypsium.com/2019/08/10/screwed-drivers-signed-sealed-delivered[/](https://eclypsium.com/2019/08/10/screwed-drivers-signed-sealed-发表/)
 
 [^23]:
-
 > https://www.kernel.org/doc/html/v5.0/admin-guide/module-signing.html
 
 [^24]:
-
 > https://github.com/torvalds/linux/blob/master/include/linux/uaccess.h
 
 [^25]:
-
 > https://lwn.net/Articles/428140/
 
 [^26]:
-
 > https://lwn.net/Articles/429321/
 
 [^27]:
-
 > https://securitytxt.org/
 
 [^28]:
-
 > https://en.wikipedia.org/wiki/Bug_bounty_program
 
 [^29]:
-
 > https://www.first.org/cvss/
 
 [^30]:
-
 > https://en.wikipedia.org/wiki/STRIDE_（安全）
 
 [^31]:
-
 > https://en.wikipedia.org/wiki/DREAD_(risk_assessment_model)
 
 [^32]:
-
 > https://en.wikipedia.org/wiki/Responsible_disclosure
 
 [^33]:
-
 > https://github.com/chipsec/chipsec
 
 [^34]:
-
 > https://wiki.ubuntu.com/FirmwareTestSuite/Reference
 
 [^35]:
-
 > https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-147.pdf
 
 [^36]:
-
 > https://doc.coreboot.org/
 
 [^37]:
-
 > https://github.com/hardenedlinux/Debian-GNU-Linux-Profiles/blob/master/docs/harbian_fw/harbian_chipsec.md
 
 [^38]:
-
 > https://github.com/osresearch/heads
 
 [^39]:
-
 > https://github.com/coreboot/coreboot/blob/master/Documentation/security/vboot/measured_boot.md
 
 [^40]:
-
 > https://github.com/coreboot/coreboot/blob/master/Documentation/security/memory_clearing.md
 
 [^41]:
-
 > https://github.com/coreboot/coreboot/blob/master/Documentation/security/intel/txt.md
 
 [^42]:
-
 > https://uefi.org/sites/default/files/resources/UEFI_Spec_2_8_final.pdf
 
 [^43]:
-
 > https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/uefi-validation-option-rom-validation-guidance
 
 [^44]:
-
 > https://github.com/linuxboot/fiano
 
 [^45]:
-
 > https://www.kernel.org/
 
 [^46]:
-
 > https://kernsec.org/wiki/index.php/Kernel_Self_Protection_Project/Recommended_Settings
 
 [^47]:
-
 > https://www.intel.com/content/www/us/en/servers/ipmi/ipmi-technical-resources.html
 
 [^48]:
-
 > https://www.dmtf.org/standards/smash
 
 [^49]:
-
 > https://www.dmtf.org/standards/redfish
 
 [^50]:
-
 > http://redfish.dmtf.org/schemas/DSP0266_1.7.0.html#security-details-a-id-security-details-a-
