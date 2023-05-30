@@ -35,9 +35,8 @@ Cerberus Challenge Protocol 允许 5 个 PMR 值（PMR0 - 4），每个值都可
 
 作为唯一需要的 PMR，每个设备都必须生成此测量以供证明，并且期望包含此测量中的元素的最小集合。根据特定实现的要求，可以有其他条目，但 PMR0 必须至少包含以下测量列表。
 
-- 已加载的所有可变固件层。遵循 [TCG DICE](https://trustedcomputinggroup.org/work-groups/dice-architectures/)
-  引导模型，所有层 0 到 N 都需要测量，其中层 N 是正在运行的应用程序固件。
-- 安全启动密钥。这包括硬件支持的根密钥和密钥,用于加载后续引导阶段的清单。
+- 已加载的所有可变固件层。遵循 [TCG DICE](https://trustedcomputinggroup.org/work-groups/dice-architectures/) 引导模型，需要测量所有层 0 到 N，其中层 N 是正在运行的应用程序固件。
+- 安全启动密钥。这包括硬件支持的根密钥和用于加载后续引导阶段的密钥清单。
 - 当前的反回滚计数器。
 
 仅证明其自身固件状态的简单 RoT 设备可能没有 PMR0 以外的任何 PMR。
