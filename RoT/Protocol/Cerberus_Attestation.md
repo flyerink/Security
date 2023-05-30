@@ -35,11 +35,8 @@ The Cerberus Challenge Protocol allows for 5 PMR values (PMR0 - 4), each of whic
 
 As the only required PMR, every device must generate this measurement for attestation and there is an expectation regarding the minimum set of elements that will be included in this measurement.  There can be other entries, as required by specific implementations, but PMR0 must contain at least the following list of measurements.
 
-- All layers of mutable firmware that were loaded.  Following a [TCG DICE](https://trustedcomputinggroup.org/work-groups/dice-architectures/)
-  model of boot, all layers 0 through N need to be measured, where layer N is
-  the running application firmware.
-- Secure boot keys.  This includes both the hardware-backed root key and the key
-  manifest used to load subsequent stages of boot.
+- All layers of mutable firmware that were loaded.  Following a [TCG DICE](https://trustedcomputinggroup.org/work-groups/dice-architectures/) model of boot, all layers 0 through N need to be measured, where layer N is the running application firmware.
+- Secure boot keys.  This includes both the hardware-backed root key and the key manifest used to load subsequent stages of boot.
 - Current anti-rollback counters.
 
 Simple RoT devices that are only attesting to their own firmware state may reasonably not have any PMRs other than PMR0.
