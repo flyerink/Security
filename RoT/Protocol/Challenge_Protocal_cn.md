@@ -78,40 +78,40 @@ Cerberus 项目：固件挑战规范
 
 在本文档中，术语“处理器”是指所有中央处理器 (CPU)、片上系统 (SOC)、微控制单元 (MCU) 和微处理器架构。该文档详细说明了主动组件和平台 RoT 所需的挑战协议。处理器必须实现所有必需的功能以建立基于硬件的信任根。本质上无法满足这些要求的处理器必须实施闪存保护 Cerberus RoT 描述的物理闪存保护要求文档。
 
-有源组件是包含处理器、微控制器或运行软逻辑的设备的附加卡和外围设备。
+主动部件是包含处理器、微控制器或运行软逻辑的设备的附加卡和外围设备。
 
-本文档描述了用于平台的 Active RoT 的固件证明测量的协议。该规范包括预启动、启动和运行时挑战以及平台固件完整性的验证。分层架构超越了典型的 UEFI 测量，包括所有活动组件固件的完整性测量。该文档描述了支持 Cerberus 项目的证明挑战所需的 API。
+本文档描述了用于平台的 Active RoT 的固件证明测量的协议。该规范包括预启动、启动和运行时挑战以及平台固件完整性的验证。分层架构超越了典型的 UEFI 测量，包括所有主动器件固件的完整性测量。该文档描述了支持 Cerberus 项目的证明挑战所需的 API。
 
 
 # 物理通信通道
 
-典型的云服务器主板布局具有路由到所有有源组件的 I2C 总线。这些 I2C 总线通常由底板管理控制器 (BMC) 用于对有源组件进行热监控。在 Cerberus 板布局中，I2C 通道首先由平台 Cerberus 微控制器在启动和预启动期间使用，然后多路复用器切换回 BMC 进行热管理。Cerberus 可以随时请求 BMC 放弃对运行时挑战和证明的控制。Cerberus 控制 I2C 多路复用器位置，并在运行时协调访问。Cerberus 还可以在运行时通过 BMC 代理命令，可选择链接加密和非对称密钥交换，使 BMC 对通信视而不见。主板上的 Cerberus 微控制器被称为平台主动信任根 (PA-RoT)。该微控制器是分层信任根平台设计的负责人，包含平台固件清单 (PFM) 和组件固件清单 (CFM) 中保存的所有平台固件的可证明散列。
+典型的云服务器主板布局具有路由到所有主动部件的 I2C 总线。这些 I2C 总线通常由底板管理控制器 (BMC) 用于对主动部件进行热监控。在 Cerberus 板布局中，I2C 通道首先由平台 Cerberus 微控制器在启动和预启动期间使用，然后mux切换回 BMC 进行热管理。Cerberus 可以随时请求 BMC 放弃对运行时挑战和证明的控制。Cerberus 控制 I2C mux位置，并在运行时协调访问。Cerberus 还可以在运行时通过 BMC 代理命令，可选择链路加密和非对称密钥交换，使 BMC 对通信视而不见。主板上的 Cerberus 微控制器被称为平台主动信任根 (PA-RoT)。该微控制器是分层信任根平台设计的负责方，包含平台固件清单 (PFM) 和组件固件清单 (CFM) 中保存的所有平台固件的可证明散列。
 
-大多数云服务器主板将 I2C 路由到有源组件以进行热监控，添加多路复用器逻辑是对主板的唯一修改。添加额外多路复用器的替代方法是通过 I2C 上的 BMC 建立安全质询通道。一旦 BMC 被 Cerberus 加载和验证，它就可以充当 I2C 代理。这种方法不太可取，因为如果 BMC 认证失败，它会限制平台认证。在这两种方法中，有源组件接口的物理连接器都不需要更改，因为它们已经具有 I2C。
+大多数云服务器主板将 I2C 路由到主动部件以进行热监控，添加 mux 逻辑是对主板的唯一修改。除了添加额外的 mux，另一种替代做法是使用 BMC上的 I2C 建立安全的质询通道。一旦 BMC 被 Cerberus 加载和验证，它就可以充当 I2C 代理。这种方法不太可取，因为如果 BMC 认证失败，它会限制平台认证。在这两种方法中，主动部件接口的物理连接器都不需要更改，因为它们已经具有 I2C。
 
-具有“处理器安全启动要求”文档中描述的固有安全属性的活动组件不需要将物理 Cerberus 微控制器放置在其处理器和闪存之间。不满足“处理器安全启动要求”文档中所述要求的活动组件需要在其处理器和闪存之间实施 Cerberus 微控制器，以建立所需的信任根。图 1 主板 I2C 通道图，表示主板 PA-RoT 和有源组件 RoT (AC-RoT) 之间的预启动和后启动测量挑战通道。
+具有“处理器安全启动要求”文档中描述的固有安全属性的主动器件不需要将物理 Cerberus 微控制器放置在其处理器和闪存之间。不满足“处理器安全启动要求”文档中所述要求的主动器件需要在其处理器和闪存之间实施 Cerberus 微控制器，以建立所需的信任根。图 1 主板 I2C 通道图，表示主板 PA-RoT 和主动部件 RoT (AC-RoT) 之间的预启动和后启动测量挑战通道。
 
 > TODO：图 1
 
-Project Cerberus 固件认证是一个分层架构。现代服务器中的大多数活动组件在平台的主机处理器完成初始化并能够挑战设备之前启动到操作级别。在 Cerberus 设计中，平台保持在预上电或重置状态，从而隔离有源组件并对其固件测量进行质询。主动组件必须响应来自 PA-RoT 的挑战，以确认其固件的完整性，然后再将它们从隔离中取出。
+Project Cerberus 固件认证是一个分层架构。现代服务器中的大多数主动器件在平台的主机处理器完成初始化并能够挑战设备之前启动到操作级别。在 Cerberus 设计中，平台保持在预上电或重置状态，从而隔离主动部件并对其固件测量进行质询。主动组件必须响应来自 PA-RoT 的挑战，以确认其固件的完整性，然后再将它们从隔离中取出。
 
 在这个版本的 Cerberus 平台设计中，PFM 和 CFM 是静态的。清单可通过 PA-RoT 的通信接口进行编程。规范的未来版本将考虑主动组件的自动检测和 PFM/CFM 的计算。PFM 和 CFM 是允许的固件版本及其相应固件测量的清单。清单包含用于限制回滚的单调标识符。
 
-PA-RoT 使用 CFM 中的测量值来挑战有源组件并比较它们的测量值。然后 PA-RoT 使用这些测量的摘要作为平台级测量，创建一个分层平台级摘要，可以证明平台和活动组件固件的完整性。
+PA-RoT 使用 CFM 中的测量值来挑战主动部件并比较它们的测量值。然后 PA-RoT 使用这些测量的摘要作为平台级测量，创建一个分层平台级摘要，可以证明平台和主动器件固件的完整性。
 
-PA-RoT 将支持消息的身份验证、完整性和机密性。主动组件 RoT (AC-RoT) 将支持消息和质询的身份验证和完整性。为此，AC-RoT 需要支持证书认证。活动组件将支持用于身份验证的组件唯一 CA 签名质询证书。
+PA-RoT 将支持消息的身份验证、完整性和机密性。主动组件 RoT (AC-RoT) 将支持消息和质询的身份验证和完整性。为此，AC-RoT 需要支持证书认证。主动器件将支持用于身份验证的组件唯一 CA 签名质询证书。
 
 > 注意：I2C 是一种低速链路，在优化协议消息和携带更高位数的强加密哈希算法之间存在性能权衡。不能支持证书身份验证的 RoT 需要支持散列算法和固件测量的 RSA 或 ECDSA 签名。
 
 
-## 功率控制
+## Power Control - 功率控制
 
-在 Cerberus 主板设计中，电源和重置排序由 PA-RoT 协调。当电压施加到主板时，它会通过浪涌电路到达 CPLD，该 CPLD 对电源轨执行时间敏感排序以确保稳定性。一旦建立了电源良好级别，平台就被视为已通电。在 Cerberus 设计中为平台初始加电时，唯一加电的有源组件是 PA-RoT。RoT 首先安全地加载和解压缩其内部固件，然后通过测量 BMC 闪存来验证底板管理控制器 (BMC) 固件的完整性。当 BMC 固件已通过身份验证时，Active RoT 会启用电源以应用于 BMC。BMC 上电后，Active RoT 会验证平台 UEFI 的固件，在此期间，RoT 对 PCIe 插槽的电源进行排序并开始有源组件 RoT 挑战。当 UEFI 已通过身份验证时，平台将保持系统重置状态，Active RoT 将保持系统处于重置状态，直到 AC-RoT 响应测量挑战。任何不响应其测量质询的 PCIe 端口随后将断电。如果任何预期的有源组件未能响应测量挑战，Cerberus 策略将确定系统是否应在有源组件断电的情况下启动，或者平台应保持备用电源状态，同时向数据中心管理软件报告测量失败通过 OOB 路径。平台保持系统重置状态，Active RoT 将保持系统重置，直到 AC-RoT 响应测量挑战。任何不响应其测量质询的 PCIe 端口随后将断电。如果任何预期的有源组件未能响应测量挑战，Cerberus 策略将确定系统是否应在有源组件断电的情况下启动，或者平台应保持备用电源状态，同时向数据中心管理软件报告测量失败通过 OOB 路径。平台保持系统重置状态，Active RoT 将保持系统重置，直到 AC-RoT 响应测量挑战。任何不响应其测量质询的 PCIe 端口随后将断电。如果任何预期的有源组件未能响应测量挑战，Cerberus 策略将确定系统是否应在有源组件断电的情况下启动，或者平台应保持备用电源状态，同时向数据中心管理软件报告测量失败通过 OOB 路径。
+在Cerberus主板设计中，电源和复位排序是由PA-RoT编排的。当电压施加到主板上时，它通过涌流电路传递到CPLD，该CPLD对电源轨进行时间敏感排序以确保稳定。一旦建立了电源良好水平，就认为平台已通电。Cerberus设计的平台在初始启动时，唯一启动的活动组件是PA- RoT。RoT首先安全地加载并解压缩其内部固件，然后通过测量BMC flash来验证Baseboard Management Controller (BMC)固件的完整性。当BMC固件通过认证后，Active RoT将使BMC上电。一旦BMC上电，Active RoT对平台UEFI的固件进行认证，在此期间，RoT序列上电到PCIe插槽并开始Active Component RoT挑战。当UEFI通过认证后，平台将处于系统复位状态，Active RoT将使系统保持复位状态，直到ac -RoT对测量挑战做出响应。任何不响应其测量挑战的PCIe端口将随后断电。如果任何预期的活动组件未能响应测量挑战，Cerberus策略确定系统是否应该在活动组件断电的情况下启动，或者平台应该保持备用电源，同时通过OOB路径向数据中心管理软件报告测量失败。
 
 
-# 沟通
+# Communication - 通信
 
-Cerberus PA-RoT 通过 I2C 与 AC-RoT 通信。该协议支持身份验证和测量质询。Cerberus PA-RoT 紧跟 DICE 架构，生成微控制器独有的安全非对称密钥对。在 Cerberus RoT 的安全区域之外无法访问私钥。密钥生成和链接遵循 RIoT 规范，如以下部分所述：9.3 DICE 和 RIoT 密钥和证书。派生的平台别名公钥可用于在建立通信的挑战和摇动期间来自 AC-RoT 的证明和通信。
+Cerberus PA-RoT通过I2C与AC-RoT通信。该协议支持身份验证和测量质询。Cerberus PA-RoT生成一个安全的非对称密钥对，这是微控制器所独有的，紧跟DICE架构。私钥在Cerberus RoT的安全区域之外是不可访问的。密钥生成和链接遵循 RIoT 规范，在章节:9.3 DICE和RIoT密钥和证书中描述。派生的平台alias公钥可用于AC-RoT在挑战和震动期间的认证和通信，以建立通信。
 
 
 ## RSA/ECDSA 密钥生成
@@ -133,11 +133,11 @@ CDI 派生私钥的知识证明（称为设备 ID 私钥）用作加密协议中
 软件的每一层都可以使用其私钥证书为下一层签名并颁发新证书，每个后续层都延续这个链条。应用层的证书（Alias Certificate）可以在设备认证和建立安全通道时使用。证书还可以确定真实性。用于签署证书的非应用层私钥必须只能由它们生成的层访问。公钥被持久化或传递给上层，并最终与上下游实体交换。
 
 
-## 链式测量
+## Chained Measurements - 链式测量
 
 Cerberus 固件测量基于设备标识符组合引擎 (DICE) 架构：<https://trustedcomputinggroup.org/work-groups/dice-architectures>
 
-RoT 上的第一个可变代码是第二引导加载程序 (SBL)。CDI 是“HMAC（设备密钥 + 熵，H(SBL)”）的度量。然后，此测量值传递给第二阶段引导加载程序，计算第三引导加载程序 (TBL) 的摘要。在 Cerberus RoT 上，这是应用程序固件：`HMAC(CDI, H(TBL))`。
+RoT 上的第一个可变代码是第二引导加载程序 (SBL)。CDI 是`HMAC(Device Secret Key + Entropy, H(SBL)`）的测量值。然后，此测量值传递给第二阶段引导加载程序，计算第三引导加载程序 (TBL) 的摘要。在 Cerberus RoT 上，这是应用程序固件：`HMAC(CDI, H(TBL))`。
 
 > TODO：图 4
 
@@ -155,9 +155,9 @@ RoT 上的第一个可变代码是第二引导加载程序 (SBL)。CDI 是“HMA
 该协议源自 MCTP SMBus/I2C 传输绑定规范。为不支持 MCTP 的设备定义了协议的有限版本。如果 AC-RoT 通过 MCTP 实现证明协议，它也可以选择通过本地 SMBus/I2C 实现最小证明协议。
 
 
-## 认证消息接口
+## Attestation Message Interface - 认证消息接口
 
-证明消息接口使用 MCTP over I2C 消息协​​议来传输证明有效负载。AC-RoT MCTP 管理端点应实现与 MCTP SMBus/I2C 传输绑定规范相关的管理组件传输协议 (MCTP) 基本规范中详述的所需行为。以下部分概述了对管理端点预期行为的其他要求：
+证明消息接口使用 MCTP over I2C 消息协议来传输证明有效负载。AC-RoT MCTP 管理端点应实现与 MCTP SMBus/I2C 传输绑定规范相关的管理组件传输协议 (MCTP) 基本规范中详述的所需行为。以下部分概述了对管理端点预期行为的其他要求：
 
 * 消息接口请求和响应消息使用自定义消息类型进行传输。
 
@@ -169,7 +169,7 @@ RoT 上的第一个可变代码是第二引导加载程序 (SBL)。CDI 是“HMA
 
 * MCTP 将身份验证留给应用程序实现。本规范部分遵循 USB 身份验证规范流程，当身份验证已建立时，可以交换证明种子。
 
-* 不需要管理端点响应 ARP 消息。AC-RoT 端点不应生成任何 ARP 消息来通知主机。设备应该知道它们通常在 I2C 多路复用器之后，并且不应在分配的时间之外控制 I2C 总线，它们被提供以响应 MCTP 请求消息。
+* 不需要管理端点响应 ARP 消息。AC-RoT 端点不应生成任何 ARP 消息来通知主机。设备应该知道它们通常在 I2C mux之后，并且不应在分配的时间之外控制 I2C 总线，它们被提供以响应 MCTP 请求消息。
 
 * MCTP 端点设备应仅响应。
 
@@ -187,35 +187,35 @@ RoT 上的第一个可变代码是第二引导加载程序 (SBL)。CDI 是“HMA
 
 * 端点应支持 MCTP Get Vendor Defined Message Support 控制消息以指示 Cerberus 协议的支持级别。
 
-Platform Cerberus Active RoT 始终是 MCTP 主站。Active Component RoT's 可以配置为 Endpoint，或者 Endpoint and Master。有源组件 RoT 端点和主机应该连接到单独的物理总线。由于主从定义是分层建立的，因此不需要主仲裁。主动组件 RoT 成为端点和主控的唯一层次结构是存在下游子设备时，例如以下框图中描述的主机总线适配器 (HBA)：
+Platform Cerberus Active RoT 始终是 MCTP 主站。Active Component RoT's 可以配置为 Endpoint，或者 Endpoint and Master。主动部件 RoT 端点和主机应该连接到单独的物理总线。由于主从定义是分层建立的，因此不需要主仲裁。主动组件 RoT 成为端点和主控的唯一层次结构是存在下游子设备时，例如以下框图中描述的主机总线适配器 (HBA)：
 
 > 待办事项：图 6
 
 在此图中，HBA RoT 是平台活动 RoT 的端点和下游 HBA 扩展器的主节点。对于平台的主动 RoT，HBA 是一个端点 RoT。对于 HBA 扩展器，HBA 控制器是一个主 RoT。
 
-消息传递协议包含与 MCTP SMBus/I2C 传输绑定规范相关的管理组件传输协议 (MCPT) 基本规范，其中活动组件 RoT 是端点，平台的活动 RoT 是主机。
+消息传递协议包含与 MCTP SMBus/I2C 传输绑定规范相关的管理组件传输协议 (MCPT) 基本规范，其中主动器件 RoT 是端点，平台的活动 RoT 是主机。
 
-## 协议格式
+## Protocol Format - 协议格式
 
 所有 MCTP 事务均基于 SMBus 块写入总线协议。下表显示了一个 MCTP 封装的消息；请注意，偏移量以位而不是字节为单位给出。
 
-| 有效载荷 | 说明 |
-|------------|------------------------------------------|
-| 7:0 | I2C 目标地址。|
-| 15:8 | 命令代码；必须是“0x0f”。|
-| 23:16 | 数据包负载中的字节数。|
-| 31:24 | I2C 源地址。|
-| 35:32 | 保留（应为零）。|
-| 39:36 | MCTP 标头版本。|
-| 47:40 | 目的地 EID。|
-| 55:48 | 来源 EID。|
-| 56:56 | 消息开始 (SOM) 标志。|
-| 57:57 | 消息结束 (EOM) 标志。|
-| 59:58 | 序列号。|
-| 60:60 | 标签所有者。|
-| 63:61 | 消息标记。|
-| 64+N:64 | 数据包有效载荷。|
-| 64+N+8:64+N | 聚醚醚酮 |
+| Payload     | Description                            |
+|-------------|----------------------------------------|
+| 7:0         | I2C destination address.               |
+| 15:8        | Command code; must be `0x0f`.          |
+| 23:16       | Number of bytes in the packet payload. |
+| 31:24       | I2C source address.                    |
+| 35:32       | Reserved (should be zero).             |
+| 39:36       | MCTP Header version.                   |
+| 47:40       | Destination EID.                       |
+| 55:48       | Source EID.                            |
+| 56:56       | Start of message (SOM) flag.           |
+| 57:57       | End of message (EOM) flag.             |
+| 59:58       | Sequence number.                       |
+| 60:60       | Tag owner.                             |
+| 63:61       | Message tag.                           |
+| 64+N:64     | Packet payload.                        |
+| 64+N+8:64+N | PEC                                    |
 
 一个包应包含至少 1 个字节的有效负载，最大不超过协商的 MCTP 传输单元大小。字节计数表示事务中的后续字节数，不包括 PEC。
 
@@ -233,28 +233,28 @@ Platform Cerberus Active RoT 始终是 MCTP 主站。Active Component RoT's 可�
 基本协议的公共字段包括消息类型字段，该字段标识在 MCTP 协议中承载的更高层消息类别。
 
 
-## 传输层报头
+## Transport Layer Header - 传输层报头
 
 管理组件传输协议 (MCTP) 基本规范定义了 MCTP 数据包报头（字段说明请参阅 DSP0236）如下。
 
 请注意，偏移量以位为单位，而不是字节。此表对应于上表中位“31”之后的数据。
 
-| 有效载荷 | 说明 |
-|------------|----------------------------|
-| 3:0 | 保留（应为零）。|
-| 7:4 | MCTP 标头版本。|
-| 15:8 | 目的地 EID。|
-| 23:16 | 来源 EID。|
-| 24:24 | 消息开始 (SOM) 标志。|
-| 25:25 | 消息结束 (EOM) 标志。|
-| 27:26 | 序列号。|
-| 28:28 | 标签所有者。|
-| 31:29 | 消息标记。|
-| 32:32 | 完整性检查标志。|
-| 39:33 | MCTP 消息类型。|
-| 变量 | MCTP 标头。|
-| 变量 | MCTP 消息数据。|
-| 变量 | 完整性检查。|
+| Payload  | Description                  |
+|----------|------------------------------|
+| 3:0      | Reserved (should be zero).   |
+| 7:4      | MCTP Header version.         |
+| 15:8     | Destination EID.             |
+| 23:16    | Source EID.                  |
+| 24:24    | Start of message (SOM) flag. |
+| 25:25    | End of message (EOM) flag.   |
+| 27:26    | Sequence number.             |
+| 28:28    | Tag owner.                   |
+| 31:29    | Message tag.                 |
+| 32:32    | Integrity check flag.        |
+| 39:33    | MCTP message type.           |
+| Variable | MCTP header.                 |
+| Variable | MCTP message data.           |
+| Variable | Integrity check.             |
 
 
 通常支持空 (`0x00`) 源和目标 EID，但是具有多个 MCTP 端点的 AC-RoT 设备可以指定大于 `0x07` 且小于 `0xff` 的 EID 值。PA-RoT 不广播任何 MCTP 消息。
@@ -277,12 +277,12 @@ Cerberus 消息是本规范中定义的消息。这些消息的最大消息正�
 
     表 2 供应商定义的消息
 
-| 邮件标题 | 字节| 说明 |
-|----------------|------|--------------------------------------------------------------------------------|
-| 请求数据 | 1:2 | PCI/PCIe 供应商 ID。根据 0x00 供应商 ID 格式偏移量格式化的 MCTP 供应商 ID。|
-| | 3:N | 供应商定义的消息正文。0 到 N 个字节。|
-| 响应数据 | 1:2 | PCI/PCIe 供应商 ID，该值按 0x00 供应商 ID 偏移量格式化。|
-| | 3:M | 供应商定义的消息正文。0 到 M 字节。|
+| Message Header | Byte | Description                                                                         |
+|----------------|------|-------------------------------------------------------------------------------------|
+| Request Data   | 1:2  | PCI/PCIe Vendor ID.  The MCTP Vendor Id formatted per 0x00 Vendor ID format offset. |
+|                | 3:N  | Vendor-Defined Message Body.  0 to N bytes.                                         |
+| Response Data  | 1:2  | PCI/PCIe Vendor ID, the value is formatted per 0x00 Vendor ID offset.               |
+|                | 3:M  | Vendor-Defined Message Body.  0 to M bytes.                                         |
 
 
 Vendor ID 是 16 位无符号整数，在 PCI 2.3 规范中有描述。该值标识设备制造商。
@@ -319,10 +319,10 @@ MCTP 消息的格式由前两个字节的消息头、随后的消息数据和以
 
 ## EID 分配
 
-BMC 会将 EID 分配给不同的 Active Component RoT 设备。所有活动组件 RoT 设备都应支持 MCTP 设置端点 ID 控制请求和响应消息。Platform Active RoT 的静态 EID 为 0x0b。
+BMC 会将 EID 分配给不同的 Active Component RoT 设备。所有主动器件 RoT 设备都应支持 MCTP 设置端点 ID 控制请求和响应消息。Platform Active RoT 的静态 EID 为 0x0b。
 
 
-# 证书
+# Certificates - 证书
 
 PA-RoT 和 AC-Rot 将至少有两个证书：Device Id Certificate（通常由离线 CA 签名的 CA）和 Alias Certificate（由 Device Id Certificate 签名）。  
 
@@ -340,7 +340,7 @@ PA-RoT 也可能有一个由设备 Id 证书签名的附加证明证书。
 
 ### 文本格式
 
-证书中包含的所有文本 ASN.1 对象均应指定为“UTF8String”、“PrintableString”或“IA5String”。任何文本对象的长度不得超过 64 个字节，不包括 DER 类型和 DER 长度编码。
+证书中包含的所有文本 ASN.1 对象均应指定为`UTF8String`、`PrintableString`或`IA5String`。任何文本对象的长度不得超过 64 个字节，不包括 DER 类型和 DER 长度编码。
 
 
 ### 专有名称
@@ -364,18 +364,18 @@ PA-RoT 也可能有一个由设备 Id 证书签名的附加证明证书。
 如果生成的 8 字节序列号不是正数，则可以用额外的八位字节填充它以保持与 RFC5280 的一致性。
 
 
-## 证书链
+## Certificate Chains - 证书链
 
 最大证书链大小为 4096 字节。证书链不需要额外的编码，因为每个证书都可以单独检索。
 
 证书签名应使用 ECDSA 和未压缩点形式的 NIST P256 `secp256r1` 曲线。应使用“SHA2-256”算法执行散列。
 
 
-# 验证
+# Authentication - 验证
 
 身份验证是用于建立对特定设备的信任并证明设备固件完整性的过程。一旦设备通过身份验证，就可以选择建立安全会话以提供机密性。对于某些设备，安全会话也可用于启用可用于额外安全性或启用其他功能的加密绑定。
 
-设备只需要支持来自另一个端点的单个会话。在单会话设备中，新会话的建立将取代和终止现有会话以允许新会话。先前的会话将在收到指定请求的密钥交换的会话外（未加密）`GET_DIGESTS` 请求时终止。在会话中收到的“GET_DIGESTS”请求（加密）或未请求密钥交换不会导致活动会话终止。
+设备只需要支持来自另一个端点的单个会话。在单会话设备中，新会话的建立将取代和终止现有会话以允许新会话。先前的会话将在收到指定请求的密钥交换的会话外（未加密）`GET_DIGESTS` 请求时终止。在会话中收到的`GET_DIGESTS`请求（加密）或未请求密钥交换不会导致活动会话终止。
 
 
 ## PA-RoT 和 AC-RoT 认证
@@ -426,7 +426,7 @@ Cerberus 设备可选择支持安全会话建立，以提供两个设备之间�
 
 设备身份验证使用身份证书链，而会话密钥交换基于临时 ECDH 密钥。Device Capabilities 命令将确定设备是否支持安全会话。
 
-在查询设备功能后，主机将通过发出 Get Digests 请求开始身份验证序列。当使用身份验证建立安全会话时，“GET_DIGESTS”请求还将指示最终将使用的密钥交换类型。如果设备不支持请求的密钥交换，它将以错误响应。
+在查询设备功能后，主机将通过发出 Get Digests 请求开始身份验证序列。当使用身份验证建立安全会话时，`GET_DIGESTS`请求还将指示最终将使用的密钥交换类型。如果设备不支持请求的密钥交换，它将以错误响应。
 
 身份验证完成后，master 将生成一个临时密钥并将其发送给 slave。从机将生成自己的临时会话密钥并完成密钥交换。会话密钥将通过在挑战中包含的会话密钥和随机数上运行 ECDH 和后续 KDF 来派生。
 
@@ -442,13 +442,13 @@ Cerberus 设备可选择支持安全会话建立，以提供两个设备之间�
 2. 从站生成一个具有同等强度的临时 ECC 密钥对 (`PKresp`)。
 3. 从站使用 NIST SP800-108 计数器模式生成一个 256 位 AES 会话密钥 (`K_S`)，参数如下：
     * `K_I = ECDH(PKreq, PKresp)`
-    * `标签= RN1`
+    *   `label = RN1`
     * `context = RN2`
     * `r = 32`
 4. Slave 使用 NIST SP800-108 计数器模式生成一个 256 位 MAC 密钥 (`K_M`)，参数如下（注意 `label` 和 `context` 被交换）：
     * `K_I = ECDH(PKreq, PKresp)`
-    * `标签= RN2`
-    * `上下文= RN1`
+    * `label = RN2`
+    * `context = RN1`
     * `r = 32`
 5. 从站发送一个密钥交换响应，包括：
     1. 从属会话公钥 (`PKresp`)。
@@ -461,14 +461,14 @@ Cerberus 设备可选择支持安全会话建立，以提供两个设备之间�
 > TODO：图 10
 
 
-## 安全设备绑定
+## Secure Device Binding - 安全设备绑定
 
 在某些情况下，有必要在设备之间进行额外级别的身份验证。这种额外的身份验证机制用于配对两个设备，以便检测到任何一个设备的更换。检测到未经授权的部件更换被标记为安全违规。
 
 绑定来自在会话密钥上运行的附加 KDF，以派生最终会话密钥。参与紧密耦合配对的每个设备都包含一个公共 HMAC 密钥，该密钥在 KDF 中用于设备配对会话密钥。此公共 HMAC 密钥源自两个设备首次建立安全会话时可用的会话数据。
 
 
-### 安全设备绑定序列
+### Secure Device Binding Sequence - 安全设备绑定序列
 
 具有设备绑定的配对会话从标准安全会话开始。
 
@@ -477,60 +477,61 @@ Cerberus 设备可选择支持安全会话建立，以提供两个设备之间�
 1. Master加载配对密钥`K_P`。
     1. 如果这是第一次配对请求，Master 使用 NIST SP800-108 Counter Mode 使用以下参数生成密钥：
         * `K_I = K_S`
-        * `标签=“配对”`
-        * 没有`context`
+        * `label = "pairing"`
+        * No `context`
         * `r = 32`
     2. 如果主设备已经与从设备配对，则主设备从安全存储中加载密钥。
 2. Master 使用 NIST SP800-108 计数器模式生成一个新的会话密钥“K_S”。
     * `K_I = K_P`
-    * `标签= K_S`
-    * 没有`context`
+    * `label = K_S`
+    * No `context`
     * `r = 32`
-3. Master 发送类型 1 的密钥交换请求，其中包括使用“K_M”的配对密钥的长度和 HMAC。此消息使用当前会话密钥“K_S”加密。
+3. Master 发送类型 1 的密钥交换请求，其中包括使用`K_M`的配对密钥的长度和 HMAC。此消息使用当前会话密钥`K_S`加密。
 4. 从机加载`K_P`
     1. 如果这是来自该主机的第一个配对请求，则从机使用与主机相同的输入生成密钥。
     2. 如果从设备已经与主设备配对，则从设备从安全存储中加载密钥。
 5. Slave 计算配对密钥 HMAC 并将其与接收到的数据进行比较。
-    * 如果这是这个 Master 的第一个配对请求，Slave 安全地存储“K_P”。
-7. Slave 生成​​一个新的会话密钥（`K_S'`）。
-8. Slave 生成​​一个用“K_S”加密的密钥交换响应。
-9. Master 使用“K_S”验证响应。无法使用“K_S”解密
-    将要求主服务器使用“K_S”解密，因为从服务器不会在失败时更新会话密钥。
-10. 安全会话继续使用“K_S”。任何一方都不会处理使用 `K_S` 加密的消息。
+    * 如果这是这个 Master 的第一个配对请求，Slave 安全地
+    存储“K_P”。
+7. Slave 生成一个新的会话密钥（`K_S'`）。
+8. Slave 生成一个用`K_S'`加密的密钥交换响应。
+9. Master 使用`K_S'`验证响应。无法使用`K_S'`解密
+    将要求主服务器使用`K_S`解密，因为从服务器不会在失败时更新会话密钥。
+10. 安全会话继续使用`K_S'`。任何一方都不会处理使用 `K_S` 加密的消息。
 
 > 待办事项：图 11
 
 
-# 命令格式
+# Command Format - 命令格式
 
 以下部分描述了支持身份验证、质询和证明协议的 MCTP 消息格式。请求/响应消息体描述封装在 MCTP 传输中的供应商定义的 MCTP 消息。本节不介绍MCTP Transport Header，包括MCTP Header Version、Destination Endpoint ID等MCTP协议定义的字段。MCTP 消息封装在 3.2 节中描述
 
 MCTP Get Vendor Defined Message Support 命令可以发现支持哪些端点供应商定义的消息。该发现标识供应商组织和定义的消息类型。此请求的格式在 MCTP 基本协议规范中进行了描述。
 
-对于 Cerberus 协议，应返回以下信息以响应 MCTP“获取供应商定义的消息支持”请求：
+对于 Cerberus 协议，应返回以下信息以响应 MCTP "Get Vendor Defined Message Support"请求：
 
-* 供应商 ID 格式：`0x00`
-* PCI 供应商 ID：`0x1414`
-* 命令集版本：`0x04`
+*   Vendor ID Format: `0x00`
+*   PCI Vendor ID: `0x1414`
+*   Command Set Version: `0x04`
 
 
-## 证明协议格式
+## Attestation Protocol Format - 证明协议格式
 
 从 PA-RoT 到 AC-RoT 的消息将具有以下格式。
 
 这嵌入在第 3.4 节中定义的结构中。
 
-| 有效载荷 | 说明 |
-|------------|-----------------------------------------|
-| 0:0 | 完整性检查标志。|
-| 7:1 | MCTP 消息类型（始终为“0x7e”）。|
-| 23:8 | MCTP PCI 供应商 ID（始终为“0x1414”）。|
-| 24:24 | 请求类型。|
-| 25:25 | 保留（应为零）。|
-| 26:26 | 如果加密则设置（见下文）。|
-| 31:27 | 预订的。|
-| 39:32 | Cerberus 命令字节。|
-| 变量 | 命令负载。|
+| Payload  | Description                              |
+|----------|------------------------------------------|
+| 0:0      | Integrity check flag.                    |
+| 7:1      | MCTP message type (always `0x7e`).       |
+| 23:8     | MCTP PCI Vendor ID (always `0x1414`).    |
+| 24:24    | Request type.                            |
+| 25:25    | Reserved (should be zero).               |
+| 26:26    | Set if encrypted (see below).            |
+| 31:27    | Reserved.                                |
+| 39:32    | Cerberus command byte.                   |
+| Variable | The command payload.                     |
 
 协议标头字段仅包含在多数据包 MCTP 消息的第一个数据包中。消息体重构后，协议头将用于解释消息内容。保留字段必须设置为 0。
 
@@ -543,18 +544,18 @@ MCTP Get Vendor Defined Message Support 命令可以发现支持哪些端点供�
 
 如果在协议头中设置了 crypt 字段，则消息体包含加密数据。从单个 MCTP 数据包重建的命令代码字节和完整的消息有效载荷是加密的。第 5 节中描述的会话建立流程用于生成加密密钥。加密消息将在消息正文末尾以明文形式包含 16 字节的 GCM 身份验证标记和 12 字节的初始化向量。下表显示了带有加密尾部的加密 Cerberus 消息的正文。请注意，偏移量以位而不是字节为单位给出。
 
-| 有效载荷 | 说明 |
-|------------|------------------------------------------------------------------|
-| 0:0 | 完整性检查标志。|
-| 7:1 | MCTP 消息类型（始终为“0x7e”）。|
-| 23:8 | MCTP PCI 供应商 ID（始终为“0x1414”）。|
-| 24:24 | 请求类型。|
-| 25:25 | 保留（应为零）。|
-| 26:26 | 如果加密则设置（在这种情况下总是如此）。|
-| 31:27 | 预订的。|
-| 变量 | 密文；对应于上面的命令字节及其有效负载。|
-| N+15:N | AES-GCM 标签。|
-| N+31:N+15 | AES-GCM 初始化向量。|
+| Payload   | Description                                                        |
+|-----------|--------------------------------------------------------------------|
+| 0:0       | Integrity check flag.                                              |
+| 7:1       | MCTP message type (always `0x7e`).                                 |
+| 23:8      | MCTP PCI Vendor ID (always `0x1414`).                              |
+| 24:24     | Request type.                                                      |
+| 25:25     | Reserved (should be zero).                                         |
+| 26:26     | Set if encrypted (always, in this case).                           |
+| 31:27     | Reserved.                                                          |
+| Variable  | Ciphertext; corresponds to the command byte and its payload above. |
+| N+15:N    | AES-GCM tag.                                                       |
+| N+31:N+15 | AES-GCM initialization vector.                                     |
 
 ## RoT 命令
 
@@ -565,63 +566,63 @@ MCTP Get Vendor Defined Message Support 命令可以发现支持哪些端点供�
 * "Required" 是消息是否*必须*实现：`R` 表示
     “在所有情况下都需要”；`O` 表示“必要时执行”；`M` 的意思是“认证Master所必需的”。
 
-| 留言名称 | 编码 | 慢 | 字节| 必填 | 说明 |
-|----------------------------|-----|------|------| ----------|--------------------------------------------------|
-| `错误` | | | 0x7f | R | 默认响应消息。|
-| `固件版本` | | | 0x01 | R | 检索固件版本信息。|
-| `设备能力` | | | 0x02 | R | 检索设备功能。|
-| `设备ID` | | | 0x03 | R | 检索设备 ID。|
-| `设备信息` | | | 0x04 | R | 检索设备信息。|
-| `出口企业社会责任` | | | 0x20 | R | 导出设备密钥的 CSR。|
-| `导入证书` | | × | 0x21 | R | 导入 CA 签名证书。|
-| `获取证书状态` | | | 0x22 | R | 检查已签名证书链的状态。|
-| `获取摘要` | | × | 0x81 | R | 检索证书链摘要。|
-| `获得证书` | | | 0x82 | R | 检索证书链。|
-| `挑战` | | × | 0x83 | R | 验证集体测量。|
-| `密钥交换` | | × | 0x84 | O | 交换会话密钥和制造设备配对密钥。|
-| `会话同步` | × | × | 0x85 | O | 检查安全会话的状态。|
-| `获取日志信息` | | | 0x4f | O | 检索日志信息。|
-| `获取日志` | | | 0x50 | O | 检索调试、证明和篡改日志。|
-| `清除日志` | | | 0x51 | O | 清除设备日志。|
-| `获取证明数据` | | | 0x52 | O | 从证明日志中检索原始数据。|
-| `获取主机状态` | | | 0x40 | O | 获取主机处理器的复位状态。|
-| `获取PFM Id` | | | 0x59 | O | 获取 PFM 信息。|
-| `获得 PFM 支持` | | | 0x5a | O | 检索 PFM。|
-| `准备 PFM` | | | 0x5b | O | 准备传入的 PFM 更新。|
-| `更新PFM` | | | 0x5c | O | 上传新 PFM 的一部分。|
-| `激活PFM` | | | 0x5d | O | 激活新上演的 PFM。|
-| `获取CFM Id` | | | 0x5e | M| 获取 CFM 信息。|
-| `准备 CFM` | | | 0x5f | M| 准备传入的 CFM 更新。|
-| `更新CFM` | | | 0x60 | M| 上传新 CFM 的一部分。|
-| `激活 CFM` | | | 0x61 | M| 激活新上演的 CFM。|
-| `获得 CFM 支持` | | | 0x8d | M| 检索支持的 CFM ID。|
-| `获取PCD ID` | | | 0x62 | M| 获取 PCD 信息。|
-| `准备 PCD` | | | 0x63 | M| 准备传入的 PCD 更新。|
-| `更新PCD` | | | 0x64 | M| 上传新 PCD 的一部分。|
-| `激活PCD` | | | 0x65 | M| 激活新阶段的 PCD。|
-| `准备固件更新` | | | 0x66 | O | 准备传入的固件更新。|
-| `更新固件` | | | 0x67 | O | 上传新固件图像的一部分。|
-| `更新状态` | | | 0x68 | M| 固件或清单更新状态 |
-| `扩展更新状态` | | | 0x8e | M| 固件或清单扩展状态 |
-| `激活固件更新` | | | 0x69 | O | 激活新阶段的固件更新。|
-| `重置配置` | | × | 0x6a | O | 将配置重置为默认状态。|
-| `获取配置 ID` | | × | 0x70 | M| 获取经过身份验证的清单 ID。|
-| `恢复固件` | | | 0x71 | O | 使用备份恢复固件索引。|
-| `准备恢复映像` | | | 0x72 | O | 准备传入的恢复映像更新。|
-| `更新恢复图像` | | | 0x73 | O | 上传新恢复映像的一部分。|
-| `激活恢复映像` | | | 0x74 | O | 激活新上演的恢复映像。|
-| `获取恢复映像 ID` | | | 0x75 | O | 获取恢复映像信息。|
-| `获取PMR` | | × | 0x80 | O | 获取平台测量寄存器。|
-| `更新PMR` | × | × | 0x86 | O | 扩展平台测量寄存器。|
-| `重置计数器` | | | 0x87 | R | 重置计数器。|
-| `开封消息` | | × | 0x89 | O | 开始开封挑战。|
-| `解封消息结果` | | | 0x8a | O | 获取解封状态和结果。|
+| Message Name               | Enc | Slow | Byte | Required | Description                                         |
+|----------------------------|-----|------|------|----------|-----------------------------------------------------|
+| `ERROR`                    |     |      | 0x7f | R        | Default response message.                           |
+| `Firmware Version`         |     |      | 0x01 | R        | Retrieves firmware version information.             |
+| `Device Capabilities`      |     |      | 0x02 | R        | Retrieves device capabilities.                      |
+| `Device Id`                |     |      | 0x03 | R        | Retrieves device id.                                |
+| `Device Information`       |     |      | 0x04 | R        | Retrieves device information.                       |
+| `Export CSR`               |     |      | 0x20 | R        | Exports CSR for device keys.                        |
+| `Import Certificate`       |     | X    | 0x21 | R        | Imports CA signed Certificate.                      |
+| `Get Certificate State`    |     |      | 0x22 | R        | Checks the state of the signed Certificate chain.   |
+| `GET DIGESTS`              |     | X    | 0x81 | R        | Retrieves certificate chain digests.                |
+| `GET CERTIFICATE`          |     |      | 0x82 | R        | Retrieves certificate chain.                        |
+| `CHALLENGE`                |     | X    | 0x83 | R        | Authenticates the collective measurement.           |
+| `Key Exchange`             |     | X    | 0x84 | O        | Exchanges session keys and mfg device pairing keys. |
+| `Session Sync`             | X   | X    | 0x85 | O        | Checks status of a secure session.                  |
+| `Get Log Info`             |     |      | 0x4f | O        | Retrieves logging information.                      |
+| `Get Log`                  |     |      | 0x50 | O        | Retrieves debug, attestation, and tamper logs.      |
+| `Clear Log`                |     |      | 0x51 | O        | Clears device logs.                                 |
+| `Get Attestation Data`     |     |      | 0x52 | O        | Retrieves raw data from the attestation log.        |
+| `Get Host State`           |     |      | 0x40 | O        | Gets reset state of the host processor.             |
+| `Get PFM Id`               |     |      | 0x59 | O        | Gets PFM information.                               |
+| `Get PFM Supported`        |     |      | 0x5a | O        | Retrieves the PFM.                                  |
+| `Prepare PFM`              |     |      | 0x5b | O        | Prepares an incoming PFM update.                    |
+| `Update PFM`               |     |      | 0x5c | O        | Uploads part of a new PFM.                          |
+| `Activate PFM`             |     |      | 0x5d | O        | Activates a newly-staged PFM.                       |
+| `Get CFM Id`               |     |      | 0x5e | M        | Gets CFM information.                               |
+| `Prepare CFM`              |     |      | 0x5f | M        | Prepares an incoming CFM update.                    |
+| `Update CFM`               |     |      | 0x60 | M        | Uploads part of a new CFM.                          |
+| `Activate CFM`             |     |      | 0x61 | M        | Activates a newly-staged CFM.                       |
+| `Get CFM Supported`        |     |      | 0x8d | M        | Retrieve supported CFM IDs.                         |
+| `Get PCD Id`               |     |      | 0x62 | M        | Gets PCD information.                               |
+| `Prepare PCD`              |     |      | 0x63 | M        | Prepares an incoming PCD update.                    |
+| `Update PCD`               |     |      | 0x64 | M        | Uploads part of a new PCD.                          |
+| `Activate PCD`             |     |      | 0x65 | M        | Activates a newly-staged PCD.                       |
+| `Prepare Firmware Update`  |     |      | 0x66 | O        | Prepares an incoming firmware update.               |
+| `Update Firmware`          |     |      | 0x67 | O        | Uploads part of a new firmare image.                |
+| `Update Status`            |     |      | 0x68 | M        | Firmware or manifest update status                  |
+| `Extended Update Status`   |     |      | 0x8e | M        | Firmware or manifest extended status                |
+| `Activate Firmware Update` |     |      | 0x69 | O        | Activates a newly-staged firmware update.           |
+| `Reset Configuration`      |     | X    | 0x6a | O        | Resets configuration to default state.              |
+| `Get Config IDs`           |     | X    | 0x70 | M        | Gets authenticated manifest IDs.                    |
+| `Recovery Firmware`        |     |      | 0x71 | O        | Restores firmware index using backup.               |
+| `Prepare Recovery Image`   |     |      | 0x72 | O        | Prepares an incoming recovery image update.         |
+| `Update Recovery Image`    |     |      | 0x73 | O        | Uploads part of a new recovery image.               |
+| `Activate Recovery Image`  |     |      | 0x74 | O        | Activate newly-staged recovery image.               |
+| `Get Recovery Image Id`    |     |      | 0x75 | O        | Get recovery image information.                     |
+| `Get PMR`                  |     | X    | 0x80 | O        | Gets a Platform Measurement Register.               |
+| `Update PMR`               | X   | X    | 0x86 | O        | Extends a Platform Measurements Register.           |
+| `Reset Counter`            |     |      | 0x87 | R        | Reset Counter.                                      |
+| `Unseal Message`           |     | X    | 0x89 | O        | Begin an unsealing challenge.                       |
+| `Unseal Message Result`    |     |      | 0x8a | O        | Get unsealing status and result.                    |
 
 命令字节“0xf0”到“0xff”永远不会被 Cerberus 分配，并且可能被视为“专用”区域。
 
 关于所需消息的注释：
 1. 如果支持任何“Enc”消息，则需要 `Key Exchange` 和 `Session Sync`。
-2. 如果支持证明日志，则需要“获取证明数据”。
+2. 如果支持证明日志，则需要`Get Attestation Data`。
 3. 如果支持任何更新命令（例如，`Prepare`/`Update`/`Activate` 命令），则需要`Update Status` 和`Extended Update Status`。
 4. 如果支持任何清单类型，则需要“获取配置 ID”。
 
@@ -637,26 +638,26 @@ MCTP Get Vendor Defined Message Support 命令可以发现支持哪些端点供�
 
 Message Body 返回如下：
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1 | 错误代码 |
-| 2:5 | 错误数据 |
+| Payload | Description |
+|---------|-------------|
+| 1       | Error code  |
+| 2:5     | Error data  |
 
 “错误代码”是以下之一：
     表 9 错误代码
 
-| 错误代码 | 值 |描述 | 资料 |
-|------------------------|--------|------------------------------------------|----------------|
-| 没有错误 | 0x00 | 成功 | 0x00 |
-| 无效请求 | 0x01 | 请求中的无效数据 | 0x00 |
-| 忙 | 0x03 | 设备正忙于处理其他命令 | 0x00 |
-| 未指定 | 0x04 | 发生未指定的错误 | 供应商定义 |
-| 无效校验和 | 0xf0 | 无效校验和 | 校验和 |
-| 故障消息 | 0xf1 | EOM 先于 SOM | 0x00 |
-| 认证 | 0xf2 | 身份验证未建立 | 0x00 |
-| 乱序窗口 | 0xf3 | 从序列窗口接收到的消息 | 0x00 |
-| 无效数据包长度 | 0xf4 | 收到的数据包大小意外 | 数据包长度 |
-| 消息溢出 | 0xf5 | 消息超过最大长度 | 消息长度 |
+| Error Code             | Value |Description  | Data      |
+|------------------------|-------|------------------------------------------|----------------|
+| No Error               | 0x00  | Success                                  | 0x00           |
+| Invalid Request        | 0x01  | Invalidated data in the request          | 0x00           |
+| Busy                   | 0x03  | Device is busy processing other commands | 0x00           |
+| Unspecified            | 0x04  | Unspecified error occurred               | Vendor defined |
+| Invalid Checksum       | 0xf0  | Invalid checksum                         | Checksum       |
+| Out of Order Message   | 0xf1  | EOM before SOM                           | 0x00           |
+| Authentication         | 0xf2  | Authentication not established           | 0x00           |
+| Out of Sequence Window | 0xf3  | Message received out of Sequence Window  | 0x00           |
+| Invalid Packet Length  | 0xf4  | Packet received with unexpected size     | Packet Length  |
+| Message Overflow       | 0xf5  | Message exceeded maximum length          | Message Length |
 
 如果未为以下部分中的命令定义定义显式响应，则错误消息是带有“No Error”的预期响应。
 
@@ -666,25 +667,25 @@ Message Body 返回如下：
 
 此命令获取目标固件的版本。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1 | 面积指数 |
+| Payload | Description |
+|---------|-------------|
+| 1       | Area Index  |
 
-面积指标如下：
+区域索引如下：
 * 0x00：整个固件
-* 0x01: 防暴核心
-* 附加索引由供应商定义。
+* 0x01: RIoT 核心
+* 由供应商定义的附加索引。
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|--------------------------------|
-| 1:32 | 固件版本号 (ASCII) |
+| Payload | Description                     |
+|---------|---------------------------------|
+| 1:32    | Firmware Version Number (ASCII) |
 
 
-### 设备能力
+### Device Capabilities - 设备能力
 
 设备功能提供有关设备功能的信息。消息和数据包最大值是根据共享功能协商的。在确定适当的最大尺寸时，还需要考虑一些额外的因素：
 
@@ -693,7 +694,7 @@ Message Body 返回如下：
 
 2. 根据第 3.5 节，消息负载大小不得超过 4096 字节。
 
-3.设备支持的总数据包大小将包括3.2节中定义的封装，不包括目标地址的第一个字节。
+3. 设备支持的总数据包大小将包括3.2节中定义的封装，不包括目标地址的第一个字节。
     例如，最大数据包负载为 247 字节将导致每个数据包传输 256 字节：
     * 1 字节目的地址。
     * 3 字节 SMBus 标头。
@@ -705,199 +706,199 @@ Message Body 返回如下：
 
 5. 主设备，如 PA-RoT，应支持最大 4096 字节的消息大小，以确保与任何从设备完全兼容。
 
-<!-- TODO：将这些转换为适当的降价表。就这样，有点过分
+<!-- TODO：将这些转换为适当的markdown表。就这样，有点过分
     机械地做起来很复杂。-->
 
-#### 要求
+#### Request - 请求
 
-<表>
+<table>
     <tr>
-        <td> <strong>负载</strong> </td>
-        <td><strong>描述</strong> </td>
+        <td> <strong>Payload</strong> </td>
+        <td><strong>Description</strong> </td>
     </tr>
     <tr>
-        <td>1:2</td>
-        <td>最大消息负载大小</td>
+        <td>1:2 </td>
+        <td>Maximum Message Payload Size </td>
     </tr>
     <tr>
-        <td>3:4</td>
-        <td>最大数据包负载大小</td>
+        <td>3:4 </td>
+        <td>Maximum Packet Payload Size </td>
     </tr>
     <tr>
-        <td>5</td>
-        <td>模式：
+        <td>5 </td>
+        <td>Mode:
             <br> [7:6]
             <br> 00 = AC-RoT
             <br> 01 = PA-RoT
-            <br> 10 = 外部
-            <br> 11 = 保留
-            <br> [5:4] 主/从
-            <br> 00 = 未知
-            <br> 01 = 大师
-            <br> 10 = 奴隶
-            <br> 11 = 主从
-            <br> [3] 预留
-            <br> [2:0] 安全
-            <br> 000 = 无
-            <br> 001 = 哈希/KDF
-            <br> 010 = 身份验证 [证书授权]
-            <br> 100 = 机密性 [AES] </td>
+            <br> 10 = External
+            <br> 11 = Reserved
+            <br> [5:4] Master/Slave
+            <br> 00 = Unknown
+            <br> 01 = Master
+            <br> 10 = Slave
+            <br> 11 = both master and slave
+            <br> [3] Reserved
+            <br> [2:0] Security
+            <br> 000 = None
+            <br> 001 = Hash/KDF
+            <br> 010 = Authentication [Certificate Auth]
+            <br> 100 = Confidentiality [AES] </td>
     </tr>
     <tr>
-        <td>6</td>
-        <td>[7] PFM 支持
-            <br> [6] 政策支持
-            <br> [5] 固件保护
-            <br> [4-0]保留</td>
+        <td>6 </td>
+        <td>[7] PFM support
+            <br> [6] Policy Support
+            <br> [5] Firmware Protection
+            <br> [4-0] Reserved </td>
     </tr>
     <tr>
-        <td>7</td>
-        <td>PK 关键力量：
+        <td>7 </td>
+        <td>PK Key Strength:
             <br> [7] RSA
             <br> [6] ECDSA
-            <br> [5:3] 纠错码
-            <br> 000：无
-            <br> 001: 160 位
-            <br> 010: 256 位
-            <br> 100：保留
-            <br> [2:0] RSA：
-            <br> 000：无
-            <br>001：RSA 2048
-            <br>010：RSA 3072
-            <br>100：RSA 4096</td>
+            <br> [5:3] ECC
+            <br> 000: None
+            <br> 001: 160bit
+            <br> 010: 256bit
+            <br> 100: Reserved
+            <br> [2:0] RSA:
+            <br> 000: None
+            <br> 001: RSA 2048
+            <br> 010: RSA 3072
+            <br> 100: RSA 4096 </td>
     </tr>
     <tr>
-        <td>8</td>
-        <td>加密密钥强度：
-            <br> [7] 纠错码
-            <br> [6:3] 保留
-            <br> [2:0] AES：
-            <br> 000：无
-            <br> 001: 128 位
-            <br> 010: 256 位
-            <br>100: 384 位</td>
+        <td>8 </td>
+        <td>Encryption Key Strength:
+            <br> [7] ECC
+            <br> [6:3] Reserved
+            <br> [2:0] AES:
+            <br> 000: None
+            <br> 001: 128 bit
+            <br> 010: 256 bit
+            <br> 100: 384 bit </td>
     </tr>
-</表>
+</table>
 
 
-#### 回复
+#### Response - 响应
 
-<表>
+<table>
     <tr>
-        <td><strong>负载</strong> </td>
-        <td><strong>描述</strong> </td>
+        <td><strong>Payload</strong> </td>
+        <td><strong>Description</strong> </td>
     </tr>
     <tr>
-        <td>1:2</td>
-        <td>最大消息负载大小</td>
+        <td>1:2 </td>
+        <td>Maximum Message Payload Size </td>
     </tr>
     <tr>
-        <td>3:4</td>
-        <td>最大数据包负载大小</td>
+        <td>3:4 </td>
+        <td>Maximum Packet Payload Size </td>
     </tr>
     <tr>
-        <td>5</td>
-        <td>模式：
+        <td>5 </td>
+        <td>Mode:
             <br> [7:6]
             <br> 00 = AC-RoT
             <br> 01 = PA-RoT
-            <br> 10 = 外部
-            <br> 11 = 保留
-            <br> [5:4] 主/从
-            <br> 00 = 未知
-            <br> 01 = 大师
-            <br> 10 = 奴隶
-            <br> 11 = 主从
-            <br> [3] 预留
-            <br> [2:0] 安全
-            <br> 000 = 无
-            <br> 001 = 哈希/KDF
-            <br> 010 = 身份验证 [证书授权]
-            <br> 100 = 机密性 [AES] </td>
+            <br> 10 = External
+            <br> 11 = Reserved
+            <br> [5:4] Master/Slave
+            <br> 00 = Unknown
+            <br> 01 = Master
+            <br> 10 = Slave
+            <br> 11 = both master and slave
+            <br> [3] Reserved
+            <br> [2:0] Security
+            <br> 000 = None
+            <br> 001 = Hash/KDF
+            <br> 010 = Authentication [Certificate Auth]
+            <br> 100 = Confidentiality [AES] </td>
     </tr>
     <tr>
-        <td>6</td>
-        <td>[7] PFM 支持
-            <br> [6] 政策支持
-            <br> [5] 固件保护
-            <br> [4-0]保留</td>
+        <td>6 </td>
+        <td>[7] PFM support
+            <br> [6] Policy Support
+            <br> [5] Firmware Protection
+            <br> [4-0] Reserved </td>
     </tr>
     <tr>
-        <td>7</td>
-        <td>PK 关键力量：
+        <td>7 </td>
+        <td>PK Key Strength:
             <br> [7] RSA
             <br> [6] ECDSA
-            <br> [5:3] 纠错码
-            <br> 000：无
-            <br> 001: 160 位
-            <br> 010: 256 位
-            <br> 100：保留
-            <br> [2:0] RSA：
-            <br> 000：无
-            <br>001：RSA 2048
-            <br>010：RSA 3072
-            <br>100：RSA 4096</td>
+            <br> [5:3] ECC
+            <br> 000: None
+            <br> 001: 160bit
+            <br> 010: 256bit
+            <br> 100: Reserved
+            <br> [2:0] RSA:
+            <br> 000: None
+            <br> 001: RSA 2048
+            <br> 010: RSA 3072
+            <br> 100: RSA 4096 </td>
     </tr>
     <tr>
-        <td>8</td>
-        <td>加密密钥强度：
-            <br> [7] 纠错码
-            <br> [6:3] 保留
-            <br> [2:0] AES：
-            <br> 000：无
-            <br> 001: 128 位
-            <br> 010: 256 位
-            <br>100: 384 位</td>
+        <td>8 </td>
+        <td>Encryption Key Strength:
+            <br> [7] ECC
+            <br> [6:3] Reserved
+            <br> [2:0] AES:
+            <br> 000: None
+            <br> 001: 128 bit
+            <br> 010: 256 bit
+            <br> 100: 384 bit </td>
     </tr>
     <tr>
-        <td>9</td>
-        <td>最大消息超时：10 毫秒的倍数</td>
+        <td>9 </td>
+        <td>Maximum Message timeout: multiple of 10ms </td>
     </tr>
     <tr>
-        <td>10</td>
-        <td>最大加密消息超时：100 毫秒的倍数</td>
+        <td>10 </td>
+        <td>Maximum Cryptographic Message timeout: multiple of 100ms </td>
     </tr>
-</表>
+</table>
 
 
 ### 设备ID
 
 八字节响应。
 
-#### 要求
+#### Request - 请求
 
-空的身体。
+空的数据体。
 
-### 回复
+### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|--------------------------|
-| 1:2 | 供应商编号；最低位|
-| 3:4 | 设备ID; 最低位|
-| 5:6 | 子系统供应商 ID；最低位|
-| 7:8 | 子系统 ID；最低位|
+| Payload | Description              |
+|---------|--------------------------|
+| 1:2     | Vendor ID; LSB           |
+| 3:4     | Device ID; LSB           |
+| 5:6     | Subsystem Vendor ID; LSB |
+| 7:8     | Subsystem ID; LSB        |
 
 
 ### 设备信息
 
 此命令获取有关目标设备的信息。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|--------------------|
-| 1 | 信息索引 |
+| Payload | Description       |
+|---------|-------------------|
+| 1       | Information Index |
 
 
 信息指标如下：
 * 0x00：唯一芯片标识符。
 * 附加索引由供应商定义。
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|----------------------------|
-| 1:N | 请求的标识符 blob |
+| Payload | Description               |
+|---------|---------------------------|
+| 1:N     | Requested identifier blob |
 
 
 ### 导出 CSR
@@ -906,17 +907,17 @@ Message Body 返回如下：
 
 将 CA 签名版本的证书导入设备后，将替换自签名证书。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|--------------------|
-| 1 | 索引：默认 = 0 |
+| Payload | Description        |
+|---------|--------------------|
+| 1       | Index: Default = 0 |
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|----------------------------|
-| 1:N | 证书签名请求 |
+| Payload | Description                 |
+|---------|-----------------------------|
+| 1:N     | Certificate Signing Request |
 
 
 ### 导入证书
@@ -929,13 +930,13 @@ Message Body 返回如下：
 
 收到证书后，设备将开始验证存储的证书链。发送多个证书时，可能需要确保在发送新证书之前已完成先前的身份验证步骤。可以使用 Get Certificate State 命令检查身份验证状态。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|--------------------|
-| 1 | 类型 |
-| 2:3 | 证书长度 |
-| 4:N | 证书 |
+| Payload | Description        |
+|---------|--------------------|
+| 1       | Type               |
+| 2:3     | Certificate Length |
+| 4:N     | Certificate        |
 
 
 证书类型如下：
@@ -948,16 +949,16 @@ Message Body 返回如下：
 
 确定已发送到设备的签名证书的证书链状态。此命令的请求不包含其他有效负载。
 
-#### 要求
+#### Request - 请求
 
-空的身体。
+空的数据体。
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|----------------------------------------------|
-| 1 | 状态 |
-| 2:4 | 错误详细信息，如果链验证失败。|
+| Payload | Description                                    |
+|---------|------------------------------------------------|
+| 1       | State                                          |
+| 2:4     | Error details, if chain validation has failed. |
 
 可能的状态：
 * 0x00：已提供有效链。
@@ -972,24 +973,24 @@ Message Body 返回如下：
 
 不包含有效证书链的插槽将生成包含 0 摘要的响应。有效载荷字节 2 将指示没有返回任何摘要。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|----------------------------------------------------------|
-| 1 | 要读取的目标证书链的槽号（0 到 7）。|
-| 2 | 密钥交换算法 |
+| Payload | Description                                                   |
+|---------|---------------------------------------------------------------|
+| 1       | Slot Number (0 to 7) of the target Certificate Chain to read. |
+| 2       | Key Exchange Algorithm                                        |
 
 潜在的密钥交换算法是：
 * 0x00：无
 * 0x01：ECDH
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|----------------------------------------------------------------------|
-| 1 | 功能字段（始终为 0x01）。|
-| 2 | 返回的摘要数。|
-| 3:N | 链中证书的 SHA256 摘要，从根开始。|
+| Payload | Description                                                              |
+|---------|--------------------------------------------------------------------------|
+| 1       | Capabilities Field (always 0x01).                                        |
+| 2       | Number of digests returned.                                              |
+| 3:N     | SHA256 digests of the certificates in the chain, starting from the root. |
 
 
 ### 获取证书
@@ -1000,55 +1001,52 @@ Message Body 返回如下：
 
 如果设备没有请求的槽或索引的证书，则响应中的证书内容将为空。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|--------------------------------------------------------------|
-| 1 | 要读取的目标证书链的槽号（0 到 7）。|
-| 2 | 要读取的证书，从根证书开始的零索引。|
-| 3:4 | 偏移量：从要读取的证书开始的偏移量（以字节为单位）。|
-| 5:6 | 长度：要读取的字节数。|
+| Payload | Description                                                    |
+|---------|----------------------------------------------------------------|
+| 1       | Slot Number (0 to 7) of the target Certificate Chain to read.  |
+| 2       | Certificate to read, zero-indexed from the root Certificate.   |
+| 3:4     | Offset: offset in bytes from start of the Certificate to read. |
+| 5:6     | Length: number of bytes to read.                               |
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明                                           |
-|--------|--------------------------------------------------|
-| 1 | 返回的目标证书链的槽号。|
-| 2 | 返回证书的证书索引 |
-| 3:N | 目标证书链的请求内容。|
+| Payload | Description                                           |
+|---------|-------------------------------------------------------|
+| 1       | Slot Number of the target Certificate Chain returned. |
+| 2       | Certificate index of the returned certificate         |
+| 3:N     | Requested contents of target Certificate Chain.       |
 
 
-### 挑战
+### CHALLENGE - 挑战
 
 PA-RoT 将发送此命令，提供密钥交换中的第一个随机数。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|----------------------------------------------------------|
-| 1 | 要读取的目标证书链的槽号（0 到 7）。|
-| 2 | 保留 |
-| 3:35 | 随机数 |
+| Payload | Description                                                   |
+|---------|---------------------------------------------------------------|
+| 1       | Slot Number (0 to 7) of the target Certificate Chain to read. |
+| 2       | Reserved                                                      |
+| 3:35    | Random nonce                                                  |
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|------------------------------------------------------------------|
-| 1 | 使用的证书链的槽号。|
-| 2 | 证书插槽掩码 |
-| 3 | 设备支持的 MinProtocolVersion |
-| 4 | 设备支持的 MaxProtocolVersion |
-| 5:6 | 保留 |
-| 7:38 | 随机数 |
-| 39 | 用于生成 PMR0 测量的组件数量 |
-| 40 | PMR0 的长度 (L) |
-| 41:40+L | PMR0（聚合固件摘要）的值 |
-| 41+L:N | 在连接的请求和响应消息有效负载上签名。|
+| Payload | Description                                                        |
+|---------|--------------------------------------------------------------------|
+| 1       | Slot Number of the Certificate Chain used.                         |
+| 2       | Certificate slot mask                                              |
+| 3       | MinProtocolVersion supported by device                             |
+| 4       | MaxProtocolVersion supported by device                             |
+| 5:6     | Reserved                                                           |
+| 7:38    | Random nonce                                                       |
+| 39      | Number of components used to generate the PMR0 measurement         |
+| 40      | Length of PMR0 (L)                                                 |
+| 41:40+L | Value of PMR0 (Aggregated Firmware Digest)                         |
+| 41+L:N  | Signature over concatenated request and response message payloads. |
 
-固件摘要是目标组件的安全描述符和固件的度量。此固件测量数据不包括 Cerberus PCD、CFM 或​​ PFM。这些测量值在 PMR1 中返回。这些数字在 6.44 获取配置 ID 中检索。USB-C 上下文哈希不包含在挑战中。这将替换为设备的上下文测量。
-
-> 注意：证明证书派生将包括固件和安全描述符的测量。PMR0 预计是变化最少的 PMR，因为它包含安全描述符和设备初始引导加载程序的度量。
-
+固件摘要是目标组件的安全描述符和固件的度量。此固件测量数据不包括 Cerberus PCD、CFM 或​​ PFM。这些测量值在 PMR1 中返回。这些数字在 6.44 获取配置 ID 中检索。USB-C 上下文哈希不包含在挑战中。这将替换为设备的上下文测量。> 注意：证明证书派生将包括固件和安全描述符的测量。PMR0 预计是变化最少的 PMR，因为它包含安全描述符和设备初始引导加载程序的度量。
 
 ### 密钥交换
 
@@ -1058,12 +1056,12 @@ PA-RoT 将发送此命令，提供密钥交换中的第一个随机数。
 
 关闭已建立的会话（密钥类型 2）时，如果会话成功终止，响应将以纯文本形式传输。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|--------------------------------------------------|
-| 1 | 键类型 |
-| 2:N | 关键数据。格式由请求类型定义。|
+| Payload | Description                                          |
+|---------|------------------------------------------------------|
+| 1       | Key Type                                             |
+| 2:N     | Key data.  Format is defined by the type of request. |
 
 可能的密钥类型：
 * 0x00：会话密钥。
@@ -1072,10 +1070,10 @@ PA-RoT 将发送此命令，提供密钥交换中的第一个随机数。
 
 ##### 会话密钥数据
 
-| 有效载荷 | 说明 |
-|--------|------------------------------------------|
-| 1 | HMAC 算法 |
-| 2:N | ASN.1 DER 编码的 ECC 公钥 (`PKreq`) |
+| Payload | Description                                |
+|---------|--------------------------------------------|
+| 1       | HMAC Algorithm                             |
+| 2:N     | ASN.1 DER encoded ECC public key (`PKreq`) |
 
 可能的 HMAC 哈希算法：
 * 0x00：SHA-256
@@ -1086,77 +1084,77 @@ PA-RoT 将发送此命令，提供密钥交换中的第一个随机数。
 
 ##### 配对密钥 HMAC 数据
 
-| 有效载荷 | 说明 |
-|--------|-----------------------------------------|
-| 1:2 | 配对密钥的字节长度 |
-| 3:N | 配对密钥的 HMAC：`HMAC(K_M, K_P)` |
+| Payload | Description                               |
+|---------|-------------------------------------------|
+| 1:2     | Length in bytes of the pairing key        |
+| 3:N     | HMAC of the pairing key: `HMAC(K_M, K_P)` |
 
 ##### 销毁会话数据
 
-| 有效载荷 | 说明 |
-|--------|------------------------------------ |
-| 1:N | 会话密钥的 HMAC：`HMAC(K_M, K_S)` |
+| Payload | Description                           |
+|---------|---------------------------------------|
+| 1:N     | HMAC of session key: `HMAC(K_M, K_S)` |
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|------------------------------------------------------|
-| 1 | 请求的密钥类型 |
-| 2:N | 响应数据。格式由请求类型定义。|
+| Payload | Description                                               |
+|---------|-----------------------------------------------------------|
+| 1       | Key Type from request                                     |
+| 2:N     | Response data.  Format is defined by the type of request. |
 
 ##### 会话密钥数据
 
-| 有效载荷 | 说明 |
-|--------|--------------------------------------------------|
-| 1 | 预订的。设置为 0。
-| 2:3 | 密钥长度 |
-| 4:N | DER 编码的 ECC 公钥 (`PKresp`) |
-| N+1:N+2 | 签名长度 |
-| N+3:M | 通过会话密钥签名：`SIGN(PKreq || PKresp)` |
-| M+1:M+2 | HMAC 长度 |
-| M+3:H | 别名证书的 HMAC：`HMAC(KM, alias_cert)` |
+| Payload | Description                                           |
+|---------|-------------------------------------------------------|
+| 1       | Reserved.  Set to 0.                                  |
+| 2:3     | Key Length                                            |
+| 4:N     | DER-encoded ECC public key (`PKresp`)                 |
+| N+1:N+2 | Signature Length                                      |
+| N+3:M   | Signature over session keys: `SIGN(PKreq || PKresp)`  |
+| M+1:M+2 | HMAC Length                                           |
+| M+3:H   | HMAC of the Alias certificate: `HMAC(KM, alias_cert)` |
 
 ##### 配对密钥 HMAC 数据
 
-空的身体。
+空的数据体。
 
 ##### 销毁会话数据
 
-空的身体。
+空的数据体。
 
 
 ### 会话同步
 
 检查加密会话的状态。消息必须始终加密。
 
-#### 要求。
+#### Request - 请求。
 
-| 有效载荷 | 说明 |
-|--------|------------------------|
-| 1:4 | 随机数 (`RNreq`) |
+| Payload | Description             |
+|---------|-------------------------|
+| 1:4     | Random number (`RNreq`) |
 
-#### 回复。
+#### Response - 响应。
 
-| 有效载荷 | 说明 |
-|--------|------------------------------------ |
-| 1:N | nonce 的 HMAC：`HMAC(KM, RNreq)` |
+| Payload | Description                           |
+|---------|---------------------------------------|
+| 1:N     | HMAC of the nonce:  `HMAC(KM, RNreq)` |
 
 
 ### 获取日志信息
 
 获取 RoT 的内部日志信息。
 
-#### 要求
+#### Request - 请求
 
-空的身体。
+空的数据体。
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|-------------------------------------|
-| 1:4 | 调试日志 (0x01) 字节长度 |
-| 5:8 | 证明日志 (0x02) 字节长度 |
-| 9:12 | 篡改日志 (0x03) 字节长度 |
+| Payload | Description                            |
+|---------|----------------------------------------|
+| 1:4     | Debug Log (0x01) Length in bytes       |
+| 5:8     | Attestation Log (0x02) Length in bytes |
+| 9:12    | Tamper Log (0x03) Length in bytes      |
 
 
 ### 获取日志
@@ -1165,23 +1163,23 @@ PA-RoT 将发送此命令，提供密钥交换中的第一个随机数。
 
 Attestation measurement log，这种日志格式就像TCG日志，还有Tamper日志。无法清除或重置篡改计数器。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1 | 日志类型 |
-| 2:5 | 偏移 |
+| Payload | Description |
+|---------|-------------|
+| 1       | Log Type    |
+| 2:5     | Offset      |
 
 可能的日志类型：
 * 0x01：调试日志。
 * 0x02: 证明日志。
 * 0x03：篡改日志。
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|------------------------|
-| 1:N | 日志的内容。|
+| Payload | Description          |
+|---------|----------------------|
+| 1:N     | Contents of the log. |
 
 
 由日志结尾决定的长度，或基于设备功能的数据包大小，请参阅部分：6.7 设备功能。如果响应跨越多个 MCTP 消息，则响应结束将由 MCTP 消息确定，该消息的有效载荷小于两个设备支持的最大有效载荷。为了保证响应永远不会恰好落在最大负载边界上，响应者必须发回一个负载为零的额外数据包。
@@ -1192,27 +1190,27 @@ Attestation measurement log，这种日志格式就像TCG日志，还有Tamper�
 
 日志条目标题：
 
-| 偏移 | 说明 |
-|--------|--------------------------------------------------------------------------------------|
-| 1 | 日志条目开始标记：[7:4]: 0x0c [3:0]：标头格式，根据此规范为 0x0b。|
-| 2:3 | 条目的总长度，包括标题 |
-| 4:7 | 唯一条目标识符 |
+| Offset | Description                                                                             |
+|--------|-----------------------------------------------------------------------------------------|
+| 1      | Log entry start marker:  [7:4]: 0x0c [3:0]: Header format, 0x0b per this specification. |
+| 2:3    | Total length of the entry, including the header                                         |
+| 4:7    | Unique entry identifier                                                                 |
 
 证明条目格式：
 
-| 偏移 | 说明 |
-|--------|----------------------------------------------|
-| 1:7 | 日志条目标题 |
-| 8:11 | TCG 事件类型 |
-| 12 | 单个PMR内的测量指标。|
-| 13 | 用于测量的 PMR 的索引。|
-| 14:15 | 保留，设置为 0。
-| 16 | 摘要数 |
-| 17:19 | 保留，设置为 0。
-| 20:21 | 摘要算法 Id (`0x0b`, SHA-256) |
-| 22:53 | SHA-256 摘要用于扩展测量。|
-| 54:57 | 测量长度 |
-| 58:89 | 测量 |
+| Offset | Description                                    |
+|--------|------------------------------------------------|
+| 1:7    | Log Entry Header                               |
+| 8:11   | TCG Event Type                                 |
+| 12     | Measurement index within a single PMR.         |
+| 13     | Index of the PMR for the measurement.          |
+| 14:15  | Reserved, set to 0.                            |
+| 16     | Number of digests                              |
+| 17:19  | Reserved, set to 0.                            |
+| 20:21  | Digest algorithm Id (`0x0b`, SHA-256)          |
+| 22:53  | SHA-256 digest used to extend the measurement. |
+| 54:57  | Measurement length                             |
+| 58:89  | Measurement                                    |
 
 #### 调试日志格式
 
@@ -1220,31 +1218,31 @@ Attestation measurement log，这种日志格式就像TCG日志，还有Tamper�
 
 建议的调试条目格式：
 
-| 偏移 | 说明 |
-|--------|--------------------------------|
-| 1:7 | 日志条目标题 |
-| 8:9 | 条目的格式版本。|
-| 10 | 条目的严重性。|
-| 11 | 消息源的 ID。|
-| 12 | 条目消息类型的 ID。|
-| 13:16 | 消息特定参数。|
-| 17:20 | 消息特定参数。|
+| Offset | Description                      |
+|--------|----------------------------------|
+| 1:7    | Log Entry Header                 |
+| 8:9    | Format version of the entry.     |
+| 10     | Severity of the entry.           |
+| 11     | ID of the source of the message. |
+| 12     | ID for the entry message type.   |
+| 13:16  | Message specific argument.       |
+| 17:20  | Message specific argument.       |
 
 ### 清除调试/证明日志
 
 清除 RoT 中的日志。请注意，无法清除篡改日志。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1 | 日志类型 |
+| Payload | Description |
+|---------|-------------|
+| 1       | Log Type    |
 
 
 注意：在清除证明日志时，它会使用当前测量值自动重新创建。
 
 
-### 获取鉴权数据
+### Get Attestation Data - 获取鉴权数据
 
 获取用于生成证明日志中报告的测量的原始数据。
 
@@ -1252,19 +1250,19 @@ Attestation measurement log，这种日志格式就像TCG日志，还有Tamper�
 
 虽然此命令旨在支持应适合单个 MCTP 消息的小块数据，但请求中包含偏移参数以支持所需数据太大的情况。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|--------------------------------|
-| 1 | 平台测量寄存器 |
-| 2 | 入门索引 |
-| 3:6 | 偏移 |
+| Payload | Description                   |
+|---------|-------------------------------|
+| 1       | Platform Measurement Register |
+| 2       | Entry Index                   |
+| 3:6     | Offset                        |
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|--------------------|
-| 1:N | 实测数据。|
+| Payload | Description        |
+|---------|--------------------|
+| 1:N     | The measured data. |
 
 
 ### 获取主机状态
@@ -1272,16 +1270,17 @@ Attestation measurement log，这种日志格式就像TCG日志，还有Tamper�
 检索受 Cerberus 保护的主机处理器的重置状态。
 
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1 | 端口编号 |
+| Payload | Description |
+|---------|-------------|
+| 1       | Port Id     |
 
-#### 回复
-| 有效载荷 | 说明 |
-|--------|------------------|
-| 1 | 主机重置状态 |
+#### Response - 响应
+
+| Payload | Description      |
+|---------|------------------|
+| 1       | Host Reset State |
 
 可能的状态：
 * 0x00 - 主机正在运行。
@@ -1292,44 +1291,44 @@ Attestation measurement log，这种日志格式就像TCG日志，还有Tamper�
 
 检索 PFM 标识符。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|------------|----------------------------------------------------------|
-| 1 | 端口编号 |
-| 2 | PFM 区域：0x00 = 活动，0x01 = 待定 |
-| 3（可选） | 标识符：0x00 = 版本 ID（默认），0x01 = 平台 ID |
+| Payload      | Description                                                  |
+|--------------|--------------------------------------------------------------|
+| 1            | Port Id                                                      |
+| 2            | PFM Region:  0x00 = Active, 0x01 = Pending                   |
+| 3 (optional) | Identifier:  0x00 = Version Id (default), 0x01 = Platform Id |
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|--------------------------|
-| 1 | PFM 有效（0x00 或 0x01）|
-| 2:5 | PFM 版本 ID |
+| Payload | Description              |
+|---------|--------------------------|
+| 1       | PFM Valid (0x00 or 0x01) |
+| 2:5     | PFM Version Id           |
 
-| 有效载荷 | 说明 |
-|--------|---------------------------------------|
-| 1 | PFM 有效（0 或 1）|
-| 2:N | PFM 平台 Id 作为空终止 ASCII |
+| Payload | Description                              |
+|---------|------------------------------------------|
+| 1       | PFM Valid (0 or 1)                       |
+| 2:N     | PFM Platform Id as null-terminated ASCII |
 
 
 ### 获取 PFM 支持的固件
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|-----------------------------------------|
-| 1 | 端口编号 |
-| 2 | PFM 区域：0x00 = 活动，0x01 = 待定 |
-| 3:6 | 偏移 |
+| Payload | Description                               |
+|---------|-------------------------------------------|
+| 1       | Port Id                                   |
+| 2       | PFM Region: 0x00 = Active, 0x01 = Pending |
+| 3:6     | Offset                                    |
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|----------------------------|
-| 1 | PFM 有效（0x00 或 0x01）|
-| 2:5 | PFM 版本 ID |
-| 6:N | PFM 支持的固件版本 |
+| Payload | Description               |
+|---------|---------------------------|
+| 1       | PFM Valid (0x00 or 0x01)  |
+| 2:5     | PFM Version Id            |
+| 6:N     | PFM supported FW versions |
 
 如果响应跨越多个 MCTP 消息，则响应结束将由 MCTP 数据包确定，该数据包的有效载荷小于两个设备支持的最大有效载荷。  
 
@@ -1340,23 +1339,23 @@ Attestation measurement log，这种日志格式就像TCG日志，还有Tamper�
 
 为传入的 PFM 提供 RoT。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1 | 端口编号 |
-| 2:5 | 总尺寸 |
+| Payload | Description |
+|---------|-------------|
+| 1       | Port Id     |
+| 2:5     | Total size  |
 
 #### 更新PFM
 
 闪存描述符结构描述了设备的闪存区域。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1 | 端口编号 |
-| 2:N | PFM 有效载荷 |
+| Payload | Description |
+|---------|-------------|
+| 1       | Port Id     |
+| 2:N     | PFM Payload |
 
 PFM 有效载荷包括 PFM 签名和单调仅前向 Id。PFM 签名在收到所有 PFM 有效载荷后进行验证。PFM 根据激活命令激活。请注意，如果系统在收到 PFM 后重新启动，则 PFM 会自动激活。要在重新引导之前激活，请发出 Activate PFM 命令。
 
@@ -1365,12 +1364,12 @@ PFM 有效载荷包括 PFM 签名和单调仅前向 Id。PFM 签名在收到所�
 
 在有效的 PFM 更新后，更新命令密封 PFM 提交方法。如果立即提交，闪存读取和写入应在发出此命令时暂停。RoT 将掌握 SPI 总线并验证新更新的 PFM。此命令只能遵循有效的 PFM 更新。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|--------------------------------------------------|
-| 1 | 端口编号 |
-| 2 | 激活：0x00 = 仅重启，0x01 = 立即 |
+| Payload | Description                                         |
+|---------|-----------------------------------------------------|
+| 1       | Port Id                                             |
+| 2       | Activation:  0x00 = Reboot only, 0x01 = Immediately |
 
 如果仅发出重启，则在更新新的 PFM 之前，“立即”提交 PFM 的选项不可用。
 
@@ -1379,47 +1378,47 @@ PFM 有效载荷包括 PFM 签名和单调仅前向 Id。PFM 签名在收到所�
 
 检索组件固件清单 ID
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|------------|----------------------------------------------------------|
-| 1 | 端口编号 |
-| 2 | CFM 区域：0x00 = 活动，0x01 = 待定 |
-| 3（可选） | 标识符：0x00 = 版本 ID（默认），0x01 = 平台 ID |
+| Payload      | Description                                                  |
+|--------------|--------------------------------------------------------------|
+| 1            | Port Id                                                      |
+| 2            | CFM Region:  0x00 = Active, 0x01 = Pending                   |
+| 3 (optional) | Identifier:  0x00 = Version Id (default), 0x01 = Platform Id |
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|--------------------------|
-| 1 | CFM 有效（0x00 或 0x01）|
-| 2:5 | CFM 版本 ID |
+| Payload | Description              |
+|---------|--------------------------|
+| 1       | CFM Valid (0x00 or 0x01) |
+| 2:5     | CFM Version Id           |
 
-| 有效载荷 | 说明 |
-|--------|---------------------------------------|
-| 1 | CFM 有效（0 或 1）|
-| 2:N | CFM 平台 ID 为空终止 ASCII |
+| Payload | Description                              |
+|---------|------------------------------------------|
+| 1       | CFM Valid (0 or 1)                       |
+| 2:N     | CFM Platform Id as null-terminated ASCII |
 
 
 ### 准备CFM
 
 为传入的组件固件清单提供 RoT。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1:5 | 总尺寸 |
+| Payload | Description |
+|---------|-------------|
+| 1:5     | Total size  |
 
 
 ### 更新CFM
 
 闪存描述符结构描述了设备的闪存区域。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1:N | CFM 有效载荷 |
+| Payload | Description |
+|---------|-------------|
+| 1:N     | CFM Payload |
 
 CFM 有效载荷包括 CFM 签名和单调仅前向 Id。CFM 签名在收到所有 CFM 有效负载后进行验证。CFM 根据激活命令激活。请注意，如果系统在收到 CFM 后重新启动，则挂起的 CFM 将被验证并自动激活。要在重新引导之前激活，请发出 Activate CFM 命令。
 
@@ -1428,30 +1427,30 @@ CFM 有效载荷包括 CFM 签名和单调仅前向 Id。CFM 签名在收到所�
 
 在有效的 CFM 更新后，更新命令密封 CFM 提交方法。RoT 将掌握 I2C 并根据 CFM 证明平台配置数据中的组件。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|--------------------------------------------------|
-| 1 | 激活：0x00 = 仅重启，0x01 = 立即 |
+| Payload | Description                                         |
+|---------|-----------------------------------------------------|
+| 1       | Activation:  0x00 = Reboot only, 0x01 = Immediately |
 
 
 ### 获取 CFM 组件 ID
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------------------------------------|
-| 1 | CFM 区域：0x00 = 活动，0x01 = 待定 |
-| 2:5 | 偏移 |
+| Payload | Description                                |
+|---------|--------------------------------------------|
+| 1       | CFM Region: 0x00 = Active,  0x01 = Pending |
+| 2:5     | Offset                                     |
 
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|----------------------------|
-| 1 | CFM 有效（0x00 或 0x01）|
-| 2:5 | CFM 版本 ID |
-| 6:N | CFM 支持的组件 ID |
+| Payload | Description                 |
+|---------|-----------------------------|
+| 1       | CFM Valid (0x00 or 0x01)    |
+| 2:5     | CFM Version Id              |
+| 6:N     | CFM supported component IDs |
 
 如果响应跨越多个 MCTP 消息，则响应结束将由 MCTP 数据包确定，该数据包的有效载荷小于两个设备支持的最大有效载荷。为了保证响应永远不会恰好落在最大负载边界上，响应者应该发回一个负载为零的额外数据包。
 
@@ -1460,45 +1459,45 @@ CFM 有效载荷包括 CFM 签名和单调仅前向 Id。CFM 签名在收到所�
 
 检索 PCD Id。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|------------|----------------------------------------------------------|
-| 1（可选） | 标识符：0x00 = 版本 ID（默认），0x01 = 平台 ID |
+| Payload      | Description                                                 |
+|--------------|-------------------------------------------------------------|
+| 1 (optional) | Identifier: 0x00 = Version Id (default), 0x01 = Platform Id |
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|--------------------------|
-| 1 | PCD 有效（0x00 或 0x01）|
-| 2:5 | PCD 版本 ID |
+| Payload | Description              |
+|---------|--------------------------|
+| 1       | PCD Valid (0x00 or 0x01) |
+| 2:5     | PCD Version Id           |
 
-| 有效载荷 | 说明 |
-|--------|---------------------------------------|
-| 1 | PCD 有效（0x00 或 0x01）|
-| 2:N | PCD 平台 ID 为空终止 ASCII |
+| Payload | Description                              |
+|---------|------------------------------------------|
+| 1       | PCD Valid (0x00 or 0x01)                 |
+| 2:N     | PCD Platform Id as null-terminated ASCII |
 
 
 ### 准备PCD
 
 为传入的平台配置数据提供 RoT。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1:4 | 总尺寸 |
+| Payload | Description |
+|---------|-------------|
+| 1:4     | Total size  |
 
 
 ### 更新PCD
 
 闪存描述符结构描述了设备的闪存区域。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1:N | PCD 有效载荷 |
+| Payload | Description |
+|---------|-------------|
+| 1:N     | PCD Payload |
 
 
 PCD 有效载荷包括 PCD 签名和单调仅前向 Id。PCD 签名在收到所有 PCD 有效载荷后进行验证。PCD 根据激活命令被激活。请注意系统是否在收到 PCD 后重新启动。
@@ -1508,9 +1507,9 @@ PCD 有效载荷包括 PCD 签名和单调仅前向 Id。PCD 签名在收到所�
 
 在有效的 PCD 更新后，激活命令会密封 PCD 承诺。
 
-#### 要求
+#### Request - 请求
 
-空的身体。
+空的数据体。
 
 
 ### 平台配置
@@ -1518,81 +1517,81 @@ PCD 有效载荷包括 PCD 签名和单调仅前向 Id。PCD 签名在收到所�
 下表描述了平台配置数据结构。
 
 <!-- TODO: 将其转换为合适的表格 -->
-<表>
+<table>
     <tr>
-        <td><strong>负载</strong> </td>
-        <td><strong>描述</strong> </td>
+        <td><strong>Payload</strong> </td>
+        <td><strong>Description</strong> </td>
     </tr>
     <tr>
-        <td>1:3</td>
-        <td>平台配置数据Id</td>
+        <td>1:3 </td>
+        <td>Platform Configuration Data Id </td>
     </tr>
     <tr>
-        <td>4:5</td>
-        <td>长度</td>
+        <td>4:5 </td>
+        <td>Length </td>
     </tr>
     <tr>
-        <td>6</td>
-        <td>策略计数</td>
+        <td>6 </td>
+        <td>Policy Count </td>
     </tr>
     <tr>
-        <td>7:N</td>
-        <td>每个 AC-RoT 都有 1 个条目。
-            配置数据决定了功能
-            启用和证明
+        <td>7:N </td>
+        <td>Each AC-RoT has 1 entry.
+            The Configuration Data determines the feature
+            enablement and attestation
             <br>
-            <表>
+            <table>
                 <tr>
-                    <td>字节</td>
-                    <td>描述</td>
+                    <td>Byte </td>
+                    <td>Description </td>
                 </tr>
                 <tr>
-                    <td>1</td>
-                    <td>设备编号</td>
+                    <td>1 </td>
+                    <td>Device Id </td>
                 </tr>
                 <tr>
-                    <td>4</td>
-                    <td>频道</td>
+                    <td>4 </td>
+                    <td>Channel </td>
                 </tr>
                 <tr>
-                    <td>5</td>
-                    <td>从站地址</td>
+                    <td>5 </td>
+                    <td>Slave Address </td>
                 </tr>
                 <tr>
-                    <td>6</td>
-                    <td>[7:5] 阈值计数
-                        <br> [4] 电源控制
-                        <br> 0 = 禁用
-                        <br> 1 = 启用
-                        <br> [3] 启用调试
-                        <br> 0 = 禁用
-                        <br> 1 = 启用
-                        <br> [2] 自动恢复
-                        <br> 0 = 禁用
-                        <br> 1 = 启用
-                        <br> [1] 政策有效
-                        <br> 0 = 禁用
-                        <br> 1 = 启用
-                        <br> [0] 阈值有效
-                        <br> 0 = 禁用
-                        <br> 1 = 启用</td>
+                    <td>6 </td>
+                    <td>[7:5] Threshold Count
+                        <br> [4] Power Control
+                        <br> 0 = Disabled
+                        <br> 1 = Enabled
+                        <br> [3] Debug Enabled
+                        <br> 0 = Disabled
+                        <br> 1 = Enabled
+                        <br> [2] Auto Recovery
+                        <br> 0 = Disabled
+                        <br> 1 = Enabled
+                        <br> [1] Policy Active
+                        <br> 0 = Disabled
+                        <br> 1 = Enabled
+                        <br> [0] Threshold Active
+                        <br> 0 = Disabled
+                        <br> 1 = Enabled </td>
                 </tr>
                 <tr>
-                    <td>7</td>
-                    <td>电源控制索引</td>
+                    <td>7 </td>
+                    <td>Power Ctrl Index </td>
                 </tr>
                 <tr>
-                    <td>8</td>
-                    <td>失败操作</td>
+                    <td>8 </td>
+                    <td>Failure Action </td>
                 </tr>
-            </表>
+            </table>
         </td>
     </tr>
     <tr>
-        <td>N:N</td>
-        <td>有效载荷签名</td>
+        <td>N:N </td>
+        <td>Signature of payload </td>
     </tr>
-</表>
+</table>
 
 电源控制索引通知 PA-RoT 分配给组件电源序列的索引。这会通知 PA-RoT 需要在平台电源定序器中声明哪个控制寄存器。
 
@@ -1607,34 +1606,34 @@ PCD 有效载荷包括 PCD 签名和单调仅前向 Id。PCD 签名在收到所�
 
 为传入的固件更新提供 RoT。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1:4 | 总尺寸 |
+| Payload | Description |
+|---------|-------------|
+| 1:4     | Total size  |
 
 
 ### 更新固件
 
 闪存描述符结构描述了设备的闪存区域。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------------------------------------|
-| 1:N | 固件更新有效负载、标头签名。|
+| Payload | Description                                |
+|---------|--------------------------------------------|
+| 1:N     | Firmware Update payload, header signature. |
 
 
 ### 更新状态
 
 更新状态报告更新负载状态。更新状态将是请求的最后一个操作的状态。此状态将保持不变，直到执行另一项操作或重置 Cerberus。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1 | 更新类型 |
-| 2 | 端口编号 |
+| Payload | Description |
+|---------|-------------|
+| 1       | Update Type |
+| 2       | Port Id     |
 
 可能的更新类型：
 * 0x00：固件
@@ -1645,23 +1644,23 @@ PCD 有效载荷包括 PCD 签名和单调仅前向 Id。PCD 签名在收到所�
 * 0x05：恢复固件
 * 0x06：重置配置
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|--------------------------------------------------------------|
-| 1:4 | 更新状态。有关详细信息，请参阅固件更新规范。|
+| Payload | Description                                                    |
+|---------|----------------------------------------------------------------|
+| 1:4     | Update Status.  See firmware update specification for details. |
 
 
 ### 扩展更新状态
 
 扩展更新状态报告更新有效负载状态以及预期的剩余更新字节数。更新状态将是请求的最后一个操作的状态。此状态将保持不变，直到执行另一项操作或重置 Cerberus。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1 | 更新类型 |
-| 2 | 端口编号 |
+| Payload | Description |
+|---------|-------------|
+| 1       | Update Type |
+| 2       | Port Id     |
 
 可能的更新类型：
 * 0x00：固件
@@ -1672,21 +1671,21 @@ PCD 有效载荷包括 PCD 签名和单调仅前向 Id。PCD 签名在收到所�
 * 0x05：恢复固件
 * 0x06：重置配置
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|--------------------------------------------------------------|
-| 1:4 | 更新状态。有关详细信息，请参阅固件更新规范。|
-| 5:8 | 剩余的预期更新字节。|
+| Payload | Description                                                    |
+|---------|----------------------------------------------------------------|
+| 1:4     | Update Status.  See firmware update specification for details. |
+| 5:8     | Expected update bytes remaining.                               |
 
 
 ### 激活固件更新
 
 提醒 Cerberus 更新字节的发送已完成，应该开始更新验证。此命令没有有效负载，预计错误响应为零。
 
-#### 要求
+#### Request - 请求
 
-空的身体。
+空的数据体。
 
 
 ### 重置配置
@@ -1703,109 +1702,109 @@ PCD 有效载荷包括 PCD 签名和单调仅前向 Id。PCD 签名在收到所�
 
 如果不需要授权，或者请求是使用签名令牌发送的，将返回一个标准错误响应来指示状态。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------------------------------------------------------------|
-| 1 | 要请求的重置操作类型。|
-| 2:N | （可选）特定于设备的授权令牌，使用 PFM 密钥签名。|
+| Payload | Description                                                          |
+|---------|----------------------------------------------------------------------|
+| 1       | Type of reset operation to request.                                  |
+| 2:N     | (Optional) Device-specific authorization token, signed with PFM key. |
 
 可能的重置类型：
 * 0x00：通过擦除所有 PFM 和 CFM 将设备恢复到不受保护（旁路）状态。
 * 0x01：通过删除所有配置执行出厂重置。这不包括签名的设备证书。
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|------------------------------------|
-| 1:N | 特定于设备的授权令牌 |
+| Payload | Description                         |
+|---------|-------------------------------------|
+| 1:N     | Device-specific authorization token |
 
 
 ### 获取配置 ID
 
 此命令检索 PFM Id、CFM Id、PCD Id 以及请求随机数和响应 id 的签名摘要。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|----------------|
-| 1:32 | 随机数 |
+| Payload | Description  |
+|---------|--------------|
+| 1:32    | Random Nonce |
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|------------------------|--------------------------|
-| 1:32 | 随机数 |
-| 33 | PFM ID 数 (P) |
-| 34 | CFM ID 数 (C) |
-| 35:(P*4 + C*4 + 4) (V') | PFM、CFM、PCD 版本 ID |
-| V'+1:M | PFM、CFM、PCD 平台 ID |
-| M+1：签名 | `SIGN（请求 || 响应）` |
+| Payload                 | Description                 |
+|-------------------------|-----------------------------|
+| 1:32                    | Random Nonce                |
+| 33                      | Number of PFM Ids (P)       |
+| 34                      | Number of CFM Ids (C)       |
+| 35:(P*4 + C*4 + 4) (V') | PFM, CFM, PCD Version IDs   |
+| V'+1:M                  | PFM, CFM, PCD Platfomrm IDs |
+| M+1:SIGN                | `SIGN(request || response)` |
 
 
 ### 恢复固件
 
 启动设备的固件恢复过程。并非所有设备都支持所有类型的恢复。实现是特定于设备的。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------------------------------------------------------------|
-| 1 | 端口编号 |
-| 2 | 要使用的固件映像：0x00 = 退出恢复，0x01 = 进入恢复 |
+| Payload | Description                                                        |
+|---------|--------------------------------------------------------------------|
+| 1       | Port Id                                                            |
+| 2       | Firmware image to use: 0x00 = Exit Recovery, 0x01 = Enter Recovery |
 
 
 ### 准备恢复镜像
 
 为端口的传入恢复映像提供 RoT。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1 | 端口编号 |
-| 2:5 | 总尺寸 |
+| Payload | Description |
+|---------|-------------|
+| 1       | Port Id     |
+| 2:5     | Total size  |
 
 
 ### 更新恢复镜像
 
 闪存描述符结构描述了设备的闪存区域。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------------------|
-| 1 | 端口编号 |
-| 2:N | 恢复映像负载 |
+| Payload | Description            |
+|---------|------------------------|
+| 1       | Port Id                |
+| 2:N     | Recovery Image Payload |
 
 
 ### 激活恢复映像
 
 信号恢复图像已完全发送，图像验证应开始。映像通过验证后，即可用于主机固件恢复。
 
-### 要求
+### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1 | 端口编号 |
+| Payload | Description |
+|---------|-------------|
+| 1       | Port Id     |
 
 
 ### 获取恢复映像 ID
 
 检索恢复映像标识符。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|------------|----------------------------------------------------------|
-| 1 | 端口编号 |
-| 2（可选） | 标识符：0x00 = 版本 ID（默认），0x01 = 平台 ID |
+| Payload      | Description                                                 |
+|--------------|-------------------------------------------------------------|
+| 1            | Port Id                                                     |
+| 2 (optional) | Identifier: 0x00 = Version Id (default), 0x01 = Platform Id |
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|--------------------------------------------------|
-| 1:N | 恢复映像平台 ID 为空终止 ASCII |
+| Payload | Description                                         |
+|---------|-----------------------------------------------------|
+| 1:N     | Recovery Image Platform Id as null-terminated ASCII |
 
 
 ### 获取平台测量寄存器
@@ -1818,21 +1817,21 @@ PMR3-4 保留供外部使用。
 
 证明要求至少保留 PMR0，因为这是质询响应消息中报告的测量值。PMR0 至少应包含设备的任何安全配置和所有固件组件。这包括任何正在运行的固件以及为启动设备而运行的固件。为了便于证明，PMR0 旨在仅包含静态信息。如果还将测量可变数据，则应通过 PMR1-2 公开这些测量结果。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|----------------------------|
-| 1 | 平台测量编号 |
-| 2:33 | 随机数 |
+| Payload | Description                 |
+|---------|-----------------------------|
+| 1       | Platform Measurement Number |
+| 2:33    | Random Nonce                |
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|----------------------------|
-| 1:32 | 随机数 |
-| 33 | 测量长度 (L) |
-| 34:33+左 | 平台测量值 |
-| 34+长：中 | `SIGN（请求 ++ 响应）` |
+| Payload | Description                 |
+|---------|-----------------------------|
+| 1:32    | Random Nonce                |
+| 33      | Measurement length (L)      |
+| 34:33+L | Platform Measurement Value  |
+| 34+L:N  | `SIGN(request ++ response)` |
 
 PMR1-4 在组件复位时被清除。PMR0 在 Cerberus 复位时被清除并重建。
 
@@ -1840,24 +1839,24 @@ PMR1-4 在组件复位时被清除。PMR0 在 Cerberus 复位时被清除并重�
 
 允许对 PMR3-4 进行外部更新。尝试更新 PMR0-2 将导致错误。测量扩展仅支持 SHA2。SHA1 和 SHA3 不适用。注意：测量只能通过经过身份验证和安全的通道进行更新。
 
-#### 请求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|----------------------------|
-| 1 | 平台测量编号 |
-| 2:N | 测量扩展 |
+| Payload | Description                 |
+|---------|-----------------------------|
+| 1       | Platform Measurement Number |
+| 2:N     | Measurement Extension       |
 
 
 ### 重置计数器
 
 自上电以来提供 Cerberus 和组件复位计数器。
 
-#### 要求
+#### Request - 请求
 
-| 有效载荷 | 说明 |
-|--------|--------------------|
-| 1 | 重置计数器类型 |
-| 2 | 端口编号 |
+| Payload | Description        |
+|---------|--------------------|
+| 1       | Reset Counter Type |
+| 2       | Port Id            |
 
 可能的重置计数器类型：
 * 0x00：本地设备
@@ -1865,149 +1864,149 @@ PMR1-4 在组件复位时被清除。PMR0 在 Cerberus 复位时被清除并重�
     这些不包括设备挑战的外部 AC-RoT。
 * 其他值由供应商定义。
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|------------|
-| 1:2 | 重置计数 |
+| Payload | Description |
+|---------|-------------|
+| 1:2     | Reset Count |
 
 
 ### 消息解封
 
 此命令开始解封证明消息。密文仅限于可以与开封所需的其他部分一起放入单个消息中的内容。
 
-#### 要求
+#### Request - 请求
 
 <!-- TODO：让它成为一个合适的表格。-->
-<表>
+<table>
     <tr>
-        <td><strong>负载</strong> </td>
-        <td><strong>描述</strong> </td>
+        <td><strong>Payload</strong> </td>
+        <td><strong>Description</strong> </td>
     </tr>
     <tr>
-        <td>1</td>
-        <td>[7:5] 保留
-            <br> [4:2] HMAC 类型：
+        <td>1 </td>
+        <td>[7:5] Reserved
+            <br> [4:2] HMAC Type:
             <br> 000 – SHA256
-            <br> [1:0] 种子类型：
-            <br> 00 – RSA：种子使用 RSA 公钥加密
-            <br>01 – ECDH：种子是ECC公钥，ASN.1/DER编码</td>
+            <br> [1:0] Seed Type:
+            <br> 00 – RSA: Seed is encrypted with an RSA public key
+            <br> 01 – ECDH: Seed is an ECC public key, ASN.1/DER encoded </td>
     </tr>
     <tr>
-        <td>2</td>
-        <td>额外的种子参数
-            <br> 搜索引擎优化：
-            <br> [7:3] 保留
-            <br> [2:0] 填充方案：
+        <td>2 </td>
+        <td>Additional Seed Parameters
+            <br> RSA:
+            <br> [7:3] Reserved
+            <br> [2:0] Padding Scheme:
             <br> 000 – PKCS#1 v1.5
-            <br> 001 – 使用 SHA1 的 OAEP
-            <br> 010 – 使用 SHA256 的 OAEP
-            <br>ECDH：
-            <br> [7:1] 保留
-            <br> [0]: 种子加工:
-            <br> 0 – 没有额外的处理。原始 ECDH 输出是种子。
-            <br> 1 – 种子是 ECDH 输出的 SHA256 散列。</td>
+            <br> 001 – OAEP using SHA1
+            <br> 010 – OAEP using SHA256
+            <br> ECDH:
+            <br> [7:1] Reserved
+            <br> [0]: Seed Processing:
+            <br> 0 – No additional processing. Raw ECDH output is the seed.
+            <br> 1 – Seed is a SHA256 hash of the ECDH output. </td>
     </tr>
     <tr>
-        <td>3:4</td>
-        <td>种子长度（S）</td>
+        <td>3:4 </td>
+        <td>Seed Length (S) </td>
     </tr>
     <tr>
-        <td>5:4+S (S')</td>
-        <td>种子</td>
+        <td>5:4+S (S') </td>
+        <td>Seed </td>
     </tr>
     <tr>
-        <td>S'+1:S'+2</td>
-        <td>密文长度(C)</td>
+        <td>S'+1:S'+2 </td>
+        <td>Cipher Text Length (C) </td>
     </tr>
     <tr>
         <td>S'+3:S'+2+C (C') </td>
-        <td>密文</td>
+        <td>Cipher Text </td>
     </tr>
     <tr>
-        <td>C'+1:C'+2</td>
-        <td>HMAC 长度（H）</td>
+        <td>C'+1:C'+2 </td>
+        <td>HMAC Length (H) </td>
     </tr>
     <tr>
-        <td>C'+3:C'+2+H (H')</td>
-        <td>HMAC</td>
+        <td>C'+3:C'+2+H (H') </td>
+        <td>HMAC </td>
     </tr>
     <tr>
-        <td>H'+1:H'+64 (P0')</td>
-        <td>PMR0 密封，忽略 0。未使用的字节在前，必须设置为 0。</td>
+        <td>H'+1:H'+64 (P0') </td>
+        <td>PMR0 Sealing, 0's to ignore. Unused bytes are first and must be set to 0. </td>
     </tr>
     <tr>
-        <td>P0'+1:P0'+64 (P1')</td>
-        <td>PMR1 密封，忽略 0。未使用的字节在前，必须设置为 0。</td>
+        <td>P0'+1:P0'+64 (P1') </td>
+        <td>PMR1 Sealing, 0's to ignore. Unused bytes are first and must be set to 0. </td>
     </tr>
     <tr>
-        <td>P1'+1:P1'+64 (P2')</td>
-        <td>PMR2 密封，忽略 0。未使用的字节在前，必须设置为 0。</td>
+        <td>P1'+1:P1'+64 (P2') </td>
+        <td>PMR2 Sealing, 0's to ignore. Unused bytes are first and must be set to 0. </td>
     </tr>
     <tr>
-        <td>P2'+1:P2'+64 (P3')</td>
-        <td>PMR3 密封，忽略 0。未使用的字节在前，必须设置为 0。</td>
+        <td>P2'+1:P2'+64 (P3') </td>
+        <td>PMR3 Sealing, 0's to ignore. Unused bytes are first and must be set to 0. </td>
     </tr>
     <tr>
-        <td>P3'+1:P3'+64</td>
-        <td>PMR4 密封，忽略 0。未使用的字节在前，必须设置为 0。</td>
+        <td>P3'+1:P3'+64 </td>
+        <td>PMR4 Sealing, 0's to ignore. Unused bytes are first and must be set to 0. </td>
     </tr>
-</表>
+</table>
 
 
 ### 消息解封结果
 
 此命令检索解封过程的当前状态。
 
-#### 要求
+#### Request - 请求
 
-空的身体。
+空的数据体。
 
-#### 回复
+#### Response - 响应
 
-| 有效载荷 | 说明 |
-|--------|------------------|
-| 1:4 | 开封状态 |
+| Payload | Description      |
+|---------|------------------|
+| 1:4     | Unsealing status |
 
-| 有效载荷 | 说明 |
-|--------|------------------------|
-| 1:4 | 开封状态 |
-| 5:6 | 加密密钥长度 |
-| 7:N | 加密密钥 |
+| Payload | Description           |
+|---------|-----------------------|
+| 1:4     | Unsealing status      |
+| 5:6     | Encryption Key Length |
+| 7:N     | Encryption Key        |
 
 Seal/Unseal 流程在 Cerberus 证明集成规范中进行了描述。
 
 
 # 平台主动 RoT (PA-RoT)
 
-PA-RoT 负责挑战 AC-RoT 并收集它们的固件测量值。PA-RoT 保留了活动组件的私有清单，其中包括地址、总线、固件版本、摘要和固件拓扑。
+PA-RoT 负责挑战 AC-RoT 并收集它们的固件测量值。PA-RoT 保留了主动器件的私有清单，其中包括地址、总线、固件版本、摘要和固件拓扑。
 
-清单通知 PA-RoT 有关系统中所有活动组件的信息。它提供了它们的 I2C 地址，以及有关如何根据已知或预期状态验证其测量的信息。平台 RoT 中配置的策略决定了在测量验证失败时应该采取什么行动。
+清单通知 PA-RoT 有关系统中所有主动器件的信息。它提供了它们的 I2C 地址，以及有关如何根据已知或预期状态验证其测量的信息。平台 RoT 中配置的策略决定了在测量验证失败时应该采取什么行动。
 
-在 Cerberus 设计的主板中，PA-RoT 协调上电。只有挑战清单中列出的有源组件，通过验证才会从上电复位中释放。
+在 Cerberus 设计的主板中，PA-RoT 协调上电。只有挑战清单中列出的主动部件，通过验证才会从上电复位中释放。
 
 ## 平台固件清单 (PFM) 和组件固件清单
 
 PA-RoT 包含一个平台固件清单 (PFM)，它描述了平台上允许的固件。组件固件清单 (CFM) 描述了平台中允许的组件固件。特定于每个 SKU 的平台配置数据 (PCD) 描述了平台中组件类型的数量及其各自的位置。
 
-注意：PFM 和 CFM 不同于处理器安全启动要求规范中描述的启动密钥清单。PFM 和 CFM 描述允许跨平台和活动组件在系统中运行的固件。
+注意：PFM 和 CFM 不同于处理器安全启动要求规范中描述的启动密钥清单。PFM 和 CFM 描述允许跨平台和主动器件在系统中运行的固件。
 
 CFM 是 PFM 的补充，由 PA-RoT 生成，用于系统中组件的测量比较。此补充作为 Reported Firmware Manifest (RFM)，类似于 TCG 日志。PFM 和 RFM 加密存储在 PA-RoT 中。PA-RoT 的对称加密密钥是硬件生成的，并且对每个微控制器都是唯一的。PA-Rot 中的对称密钥不可导出或固件不可读；并且只能由加密引擎访问以进行加密/解密。AES Galois/Counter Mode (GCM) 在应用程序级别和持久存储级别对清单的任何更改加密一个唯一的可审计标签。
 
-下表列出了每个活动组件的 PFM 中存储的属性：
+下表列出了每个主动器件的 PFM 中存储的属性：
 
-| 属性 | 说明 |
-|------------------------|------------------------------------------|
-| 说明 | 设备部件或说明 |
-| 设备类型 | AC-RoT 的底层设备类型 |
-| 整治政策 | 完整性失败的补救措施。|
-| 固件版本 | 固件版本列表 |
-| 闪存区域/偏移 | 偏移量和摘要列表，已使用和未使用 |
-| 测量 | 固件测量 |
-| 测量算法 | 用于计算测量值的算法。|
-| 公钥 | 密钥清单中的公钥。|
-| 摘要算法 | 用于计算的算法。|
-| 签名 | 固件签名 |
+| Attribute             | Description                                 |
+|-----------------------|---------------------------------------------|
+| Description           | Device Part or Description                  |
+| Device Type           | Underlying Device Type of AC-RoT            |
+| Remediation Policy    | Remediation actions for integrity failure.  |
+| Firmware Version      | List of firmware versions                   |
+| Flash Areas/Offsets   | List of offset and digests, used and unused |
+| Measurement           | Firmware Measurements                       |
+| Measurement Algorithm | Algorithm used to calculate measurement.    |
+| Public Key            | Public keys in the key manifest.            |
+| Digest Algorithm      | Algorithm used to calculate.                |
+| Signature             | Firmware signature(s)                       |
 
 PA-RoT 主动从平台固件中测量闪存，PFM 提供元数据，指示 RoT 进行测量和签名验证。PA-RoT 将测量结果存储在 RFM 中。然后 PA-Rot 使用平台配置数据挑战 AC-RoT 的测量。它将 AC-RoT 的测量值与 CFM 的测量值进行比较，同时在 RFM 中记录测量值。
 
@@ -2069,7 +2068,7 @@ SMBus 遗留协议实现可以利用 8 位 SMBus 数据包错误检查 (PEC) 来
 
 这允许平台的 Active RoT 发送大于 32 字节的消息。
 
-如果活动组件 RoT 只允许 32 字节的数据，则平台的活动 RoT 可以将读取或写入块分成多个数据包，总计整个消息。每个段都包括递减的数据包编号，该编号按顺序标识整个消息的一部分。为了保持在协议长度内，每个消息段不得超过 255 个字节。
+如果主动器件 RoT 只允许 32 字节的数据，则平台的活动 RoT 可以将读取或写入块分成多个数据包，总计整个消息。每个段都包括递减的数据包编号，该编号按顺序标识整个消息的一部分。为了保持在协议长度内，每个消息段不得超过 255 个字节。
 
 
 ### 有效载荷格式
@@ -2094,22 +2093,22 @@ SMBUS 命令字节索引寄存器，而额外的写入偏移索引在寄存器�
 > TODO：图 15
 
 
-### 遗留活动组件 RoT 命令
+### 遗留主动器件 RoT 命令
 
 下表描述了 Active Component RoT 接受的命令。
 
 所有命令均由主机启动。命令编号不代表连续的内存空间，而是相应寄存器的索引
 
-| 注册名称 | 命令 | 长度 | 读/写 | 说明 |
-|--------------------------------|--------|--------|-----|------------------------------------------------------|
-| 状态 | 0x30 | 2 | 读 | 命令状态 |
-| 固件版本 | 0x32 | 16 | 读/写 | 检索固件版本信息 |
-| 设备编号 | 0x33 | 8 | 读 | 检索设备 ID |
-| 能力 | 0x34 | 9 | 读 | 检索设备功能 |
-| 证书文摘 | 0x3c | 32 | 读 | 设备 ID 证书的 SHA256 |
-| 证书 | 0x3d | 4096 | 读/写 | AC-Rot 证书 |
-| 挑战 | 0x3e | 32 | 瓦 | RoT 编写的 Nonce |
-| 平台配置注册 | 0x03 | 0x5e | 读 | 读取固件测量值，使用 S Nonce | 计算
+| Register Name                   | Command | Length | R/W | Description                                         |
+|---------------------------------|---------|--------|-----|-----------------------------------------------------|
+| Status                          | 0x30    | 2      | R   | Command Status                                      |
+| Firmware Version                | 0x32    | 16     | R/W | Retrieve firmware version information               |
+| Device Id                       | 0x33    | 8      | R   | Retrieves Device Id                                 |
+| Capabilities                    | 0x34    | 9      | R   | Retrieves Device Capabilities                       |
+| Certificate Digest              | 0x3c    | 32     | R   | SHA256 of Device Id Certificate                     |
+| Certificate                     | 0x3d    | 4096   | R/W | Certificate from the AC-Rot                         |
+| Challenge                       | 0x3e    | 32     | W   | Nonce written by RoT                                |
+| Platform Configuration Register | 0x03    | 0x5e   | R   | Reads firmware measurement, calculated with S Nonce |
 
 
 ### 遗留命令格式
@@ -2120,10 +2119,10 @@ SMBUS 命令字节索引寄存器，而额外的写入偏移索引在寄存器�
 
 SMBUS 读取命令读取有关错误状态的详细信息。状态寄存器在写入挑战随机数和读取测量值之间发出。导出测量的延迟时间必须符合能力命令。
 
-| 有效载荷 | 说明 |
-|--------|------------------------------------------------------|
-| 1 | 状态：0x00 = 完成，0x01 = 进行中，0x02 = 错误 |
-| 2 | 错误数据或零 |
+| Payload | Description                                               |
+|---------|-----------------------------------------------------------|
+| 1       | Status: 0x00 = Complete, 0x01 = In Progress, 0x02 = Error |
+| 2       | Error Data or Zero                                        |
 
 <!-- 注意：下面的所有表格引用均已损坏并被替换使用适当的锚链接。-->
 
@@ -2156,19 +2155,19 @@ SMBUS 写命令将偏移量写入寄存器空间。有关寄存器有效负载�
 
 SMBUS 写入命令为测量新鲜度写入随机数。
 
-| 有效载荷 | 说明 |
-|--------|------------------------------------ |
-| 1:32 | PA-RoT 选择的随机 32 字节随机数 |
+| Payload | Description                           |
+|---------|---------------------------------------|
+| 1:32    | Random 32 byte nonce chosen by PA-RoT |
 
 #### 测量
 
 SMBUS 读取命令，该命令使用上述 hallenge 中的随机数读取带符号的测量值。PA-RoT 必须在发出质询之后和读取测量之前轮询状态寄存器是否完成。
 
-| 有效载荷 | 说明 |
-|--------|------------------------------------|
-| 1 | 以下散列摘要的长度 (L)。|
-| 2:33 | `H(挑战随机数 ** H(PMR0))` |
-| 34:N | 哈希签名 [2:33] |
+| Payload | Description                          |
+|---------|--------------------------------------|
+| 1       | Length (L) of following hash digest. |
+| 2:33    | `H(Challenge Nonce ** H(PMR0))`      |
+| 34:N    | Signature of HASH [2:33]             |
 
 
 # 参考

@@ -678,7 +678,7 @@ Area indexes are as follows:
 *   0x01: RIoT Core
 *   Additional indexes are vendor-defined.
 
-#### Resposne
+#### Response
 
 | Payload | Description                     |
 |---------|---------------------------------|
@@ -1010,7 +1010,7 @@ If the device does not have a certificate for the requested slot or index, the c
 | 3:4     | Offset: offset in bytes from start of the Certificate to read. |
 | 5:6     | Length: number of bytes to read.                               |
 
-#### Resposne
+#### Response
 
 | Payload | Description                                           |
 |---------|-------------------------------------------------------|
@@ -1031,7 +1031,7 @@ The PA-RoT will send this command providing the first nonce in the key exchange.
 | 2       | Reserved                                                      |
 | 3:35    | Random nonce                                                  |
 
-#### Resposne
+#### Response
 
 | Payload | Description                                                        |
 |---------|--------------------------------------------------------------------|
@@ -1839,7 +1839,7 @@ PMR1-4 are cleared on component reset.  PMR0 is cleared and re-built on Cerberus
 
 External updates to PMR3-4 are permitted.  Attempts to update PMR0-2 will result error.  Only SHA2 is supported for measurement extension.  SHA1 and SHA3 are not applicable.  Note:  The measurement can only be updated over an authenticated and secured channel.
 
-#### Reqyest
+#### Request
 
 | Payload | Description                 |
 |---------|-----------------------------|

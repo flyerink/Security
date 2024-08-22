@@ -225,7 +225,7 @@ SecureBoot 和 Secure Updates 从平台安全的角度来看很重要，因为�
     - [ ] [堆栈保护](https://en.wikipedia.org/wiki/Stack_buffer_overflow#Protection_schemes)[^8]。
     - [ ] MRR - 内存范围寄存器。
     - [ ] 考虑在不同的内存区域（如堆栈、堆和代码）之间使用故障诱导保护页。
-    - [ ] 考虑使用[控制流完整性](https://en.wikipedia.org/wiki/Control-flow_integrity)[^9] 保护（例如：[shadow stack](https://github.com/ tianocore/edk2/commit/0aac2f777a688a146050bed47753e2dcf801d3c7)<span style="text-decoration:underline;">)</span>
+    - [ ] 考虑使用[控制流完整性](https://en.wikipedia.org/wiki/Control-flow_integrity)[^9] 保护(例如：[shadow stack](https://github.com/ tianocore/edk2/commit/0aac2f777a688a146050bed47753e2dcf801d3c7)<span style="text-decoration:underline;">)</span>
 
 ### 并发
 
@@ -424,8 +424,8 @@ IPMI 具有已知的可利用漏洞历史记录（请参阅 [Intel IPMI CVE 报�
 
 - [ ] 固件更新和诊断实用程序应遵循安全开发生命周期 (SDL) 最佳实践，因为它们通常最终用于生产环境。
     - [ ] 对于 Windows，请查看 [Microsoft Driver Security Checklist](https://docs.microsoft.com/en-us/windows-hardware/drivers/driversecurity/driver-security-checklist)[^20]
-- [ ] 应尽可能遵守[最小权限原则](https://en.wikipedia.org/wiki/Principle_of_least_privilege)[^21]（例如映射 IO 资源后删除 root）
-- [ ] 应该只访问与目标设备关联的内存或 IO 资源，而不是任意内存或 IO 资源（过度访问会导致 [本地权限提升漏洞]（https://eclypsium.com/2019/08/10/screwed -驱动程序签名密封交付/)[^22])。
+- [ ] 应尽可能遵守[最小权限原则](https://en.wikipedia.org/wiki/Principle_of_least_privilege)[^21](例如映射 IO 资源后删除 root）
+- [ ] 应该只访问与目标设备关联的内存或 IO 资源，而不是任意内存或 IO 资源（过度访问会导致 [本地权限提升漏洞](https://eclypsium.com/2019/08/10/screwed -驱动程序签名密封交付/)[^22])。
 
 - [ ] 用于生产环境的实用程序
     - [ ] 应该在处理之前检查来自设备的响应是否格式正确。表现出错误行为的设备不应通过对命令提供意外或不合规格的响应而导致实用程序崩溃或失败。
@@ -592,9 +592,9 @@ BMC 在安全方面的历史不佳，因为它们最初的威胁模型严重依�
 - [ ] BMC 应该运行支持良好的操作系统版本（例如 [长期支持版本](https://www.kernel.org/)[^45]）
 - [ ] 使用强化的内核设置（例如：[KSPP 指南](https://kernsec.org/wiki/index.php/Kernel_Self_Protection_Project/Recommended_Settings)[^46]）
 - [ ] 记录所有可用接口：
-    - [ ] [IPMI](https://www.intel.com/content/www/us/en/servers/ipmi/ipmi-technical-resources.html)[^47] 界面（请注意[本节中的建议） ](#ipmi)，即不要使用)
+    - [ ] [IPMI](https://www.intel.com/content/www/us/en/servers/ipmi/ipmi-technical-resources.html)[^47] 界面(请注意[本节中的建议） ](#ipmi)，即不要使用)
     - [ ] [SMASH CLP](https://www.dmtf.org/standards/smash)[^48] 通过 ssh
-    - [ ] [Redfish](https://www.dmtf.org/standards/redfish)[^49]（[安全详细信息](http://redfish.dmtf.org/schemas/DSP0266_1.7.0.html#security -细节-a-id-安全-细节-a-)[^50])
+    - [ ] [Redfish](https://www.dmtf.org/standards/redfish)[^49]([安全详细信息](http://redfish.dmtf.org/schemas/DSP0266_1.7.0.html#security -细节-a-id-安全-细节-a-)[^50])
     - [ ] 基于 SSL (443) 的 Web 界面，具有从 80 禁用或重新路由的能力
 - [ ] 提供禁用不需要的接口的能力：
     - [ ] 远程登录
@@ -634,16 +634,16 @@ BMC 在安全方面的历史不佳，因为它们最初的威胁模型严重依�
 
 
 * [CII 徽章](https://github.com/coreinfrastructure/best-practices-badge) , https://github.com/coreinfrastructure/best-practices-badge
-* [NIST 800-193](https://csrc.nist.gov/publications/detail/sp/800-193/draft), https://csrc.nist.gov/publications/detail/sp/800-193 /草稿
+* [NIST 800-193](https://csrc.nist.gov/publications/detail/sp/800-193/draft), https://csrc.nist.gov/publications/detail/sp/800-193/draft
 * [CSIS 立场文件对 800-193 的回应](https://www.cloudsecurityindustrysummit.org/document/firmware-integrity-in-the-cloud-data-center.pdf)，https://www.cloudsecurityindustrysummit.org /document/firmware-integrity-in-the-cloud-data-center.pdf
 * [SAFECode](https://safecode.org/publications/) , https://safecode.org/publications/
-* [引导固件代码审查指南](https://edk2-docs.gitbooks.io/edk-ii-secure-code-review-guide/code_review_guidelines_for_boot_firmware/), https://edk2-docs.gitbooks.io/ edk-ii-secure-code-review-guide/code_review_guidelines_for_boot_firmware/
+* [引导固件代码审查指南](https://edk2-docs.gitbooks.io/edk-ii-secure-code-review-guide/code_review_guidelines_for_boot_firmware/), https://edk2-docs.gitbooks.io/edk-ii-secure-code-review-guide/code_review_guidelines_for_boot_firmware/
 * [ISO 27000](http://www.iso27001security.com/html/iso27000.html) , http://www.iso27001security.com/html/iso27000.html
 * [OWASP 安全软件开发生命周期项目](https://www.owasp.org/index.php/OWASP_Secure_Software_Development_Lifecycle_Project), https://www.owasp.org/index.php/OWASP_Secure_Software_Development_Lifecycle_Project
-* [IOMMU 针对 I/O 攻击的保护：漏洞和概念证明](https://link.springer.com/article/10.1186/s13173-017-0066-7)，https://link.springer。 com/article/10.1186/s13173-017-0066-7
-* [ISO/SEC 29147](https://www.iso.org/obp/ui/#iso:std:iso-iec:29147:ed-2:v1:en)，https://www.iso。 org/obp/ui/#iso:std:iso-iec:29147:ed-2:v1:en
+* [IOMMU 针对 I/O 攻击的保护：漏洞和概念证明](https://link.springer.com/article/10.1186/s13173-017-0066-7)，https://link.springer.com/article/10.1186/s13173-017-0066-7
+* [ISO/SEC 29147](https://www.iso.org/obp/ui/#iso:std:iso-iec:29147:ed-2:v1:en)，https://www.iso.org/obp/ui/iso:std:iso-iec:29147:ed-2:v1:en
 * [ISO/SEC 30111](https://www.iso.org/standard/53231.html), https://www.iso.org/standard/53231.html
-* [固件代码签名的最佳实践](https://www.opencompute.org/documents/ibm-white-paper-best-practices-for-firmware-code-signing)<span style="text-decoration:underline ;"> https://www.opencompute.org/documents/ibm-white-paper-best-practices-for-firmware-code-signing</span>
+* [固件代码签名的最佳实践](https://www.opencompute.org/documents/ibm-white-paper-best-practices-for-firmware-code-signing)<span style="text-decoration:underline;"> https://www.opencompute.org/documents/ibm-white-paper-best-practices-for-firmware-code-signing</span>
 
 
 ＃＃ 修订记录
@@ -675,7 +675,7 @@ CSIS SCWG 的初始版本
 > https://cloudsecurityalliance.org/artifacts/firmware-integrity-in-the-cloud-data-center/
 
 [^2]:
-> https://www.opencompute.org/wiki/安全
+> https://www.opencompute.org/wiki/Security
 
 [^3]:
 > http://files.opencompute.org/oc/public.php?service=files&t=f4171bae8c7a32f05b0401378ee08483&download
@@ -735,7 +735,7 @@ CSIS SCWG 的初始版本
 > https://en.wikipedia.org/wiki/Principle_of_least_privilege
 
 [^22]:
-> https://eclypsium.com/2019/08/10/screwed-drivers-signed-sealed-delivered[/](https://eclypsium.com/2019/08/10/screwed-drivers-signed-sealed-发表/)
+> https://eclypsium.com/2019/08/10/screwed-drivers-signed-sealed-delivered[/](https://eclypsium.com/2019/08/10/screwed-drivers-signed-sealed-delivered/)
 
 [^23]:
 > https://www.kernel.org/doc/html/v5.0/admin-guide/module-signing.html
@@ -759,7 +759,7 @@ CSIS SCWG 的初始版本
 > https://www.first.org/cvss/
 
 [^30]:
-> https://en.wikipedia.org/wiki/STRIDE_（安全）
+> https://en.wikipedia.org/wiki/STRIDE_(security)
 
 [^31]:
 > https://en.wikipedia.org/wiki/DREAD_(risk_assessment_model)
